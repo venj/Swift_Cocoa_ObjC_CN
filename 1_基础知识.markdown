@@ -1,0 +1,28 @@
+开始
+====
+
+基本设置
+-------
+
+Swift被设计成可以跟Cocoa和Objective-C无缝兼容。你可以在Swift中使用Objective-C的API（无论是系统框架，还是你自己的代码），你也可以在Objective-C中使用Swift的API。这种兼容性使得Swift一个可以整合进你的Cocoa应用开发工作流种的，简单、方便并且强大的工具。
+
+本指南介绍了关于这种兼容性的三大方面。你可以在开发Cocoa应用时加于利用：
+
+- *互操作性*能让你对接Swift和Objective-C代码，是你可以在Objective-C中使用Swift类，同时你也能在编写Swift代码的时候能利用你熟悉的Cocoa类，设计模式和编程实践。
+- *混合编程（Mix and Match）*使你能够创建同时包含可以互通的Swift和Objective-C源码文件的混合语言应用。
+- *迁移*已有的Objective-C代码至Swift代码，因为互操作性和混合编程的存在而变得简单。让你能够使用包含了最新功能的Swift代码逐步替换Objective-C代码。
+
+在你开始学习这些功能之前，你首先需要对如何创建一个能够访问Cocoa系统框架的Swift开发环境有所了解。
+
+### 设置Swift开发环境
+
+要开始在Swift中实验各种Cocoa框架，你需要使用Xcode的模版创建基于Swift的应用。
+
+#### 在Xcode中创建一个Swift项目
+
+1. 选择 File > New > Project > (iOS或OS X) > Application > 选择一个模版。
+2. 点击 Language 弹出菜单，选择 Swift 。
+
+![图1.1 项目模版](./pics/pic_1.1.png)
+
+Swift项目的结构与Objective-C的项目结构几乎完全一样，除了一个重要的却别：Swift没有头文件。Swift在接口和实现之间没有明确的界线，因此关于类的所有信息都包含在单独的`.swift`文件之中。
