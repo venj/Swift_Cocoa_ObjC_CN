@@ -25,4 +25,36 @@ Swift被设计成可以跟Cocoa和Objective-C无缝兼容。你可以在Swift中
 
 ![图1.1 项目模版](./pics/pic_1.1.png)
 
-Swift项目的结构与Objective-C的项目结构几乎完全一样，除了一个重要的却别：Swift没有头文件。Swift在接口和实现之间没有明确的界线，因此关于类的所有信息都包含在单独的`.swift`文件之中。
+Swift项目的结构与Objective-C的项目结构几乎完全一样，除了一个重要的区别：Swift没有头文件。Swift在接口和实现之间没有明确的界线，因此关于类的所有信息都包含在单独的`.swift`文件之中。
+
+现在，你就可以开始试着在app delegate里编写Swift代码了。你也可以通过选择 File > New > File > (iOS或OS X) > Source > Swift 创建一个新的Swift文件。
+
+> **提示**
+>
+> 从命令行编译的可执行文件通过`@rpath`环境变量查找Swift库。如果你想从命令行编译Swift代码并发布可执行文件，你需要同时发布Swift的动态链接库。在Xcode里编译的Swift可执行文件会静态链接运行时环境。
+
+#### 理解Swift的框架导入过程
+
+在你设置完Xcode项目之后，你就可以导入任何Cocoa平台的框架，开始用Swift与Objective-C进行交互了。
+
+所有Swift可以访问的Objective-C框架（或C程序库）都是以模块（*module*）的方式被直接导入的。这包括所有的Objective-C的系统框架--例如Foundation，UIKit和SpriteKit等--以及随系统提供的常用的C程序库。比如，要导入Foundation，你只需在你编写的Swift文件的最上方加上import语句：
+
+```
+import Foundation
+```
+
+导入之后，Foundation的所有API--包括`NSDate`，`NSURL`，`NSMutableData`等，以及它们的所有方法、属性、以及扩展（Category 译者注：区别于extension。将Category翻译为扩展是基于其作用。）--就都可以在Swift中使用了。
+
+导入的过程很简单。Objective-C框架在头文件中暴露API。在Swift中，这些头文件被编译为Objective-C模块，接着它们就以Swift API的形式被导入Swift。导入的过程决定了在Objective-C中声明的函数，类，方法和类型如何在Swift中呈现。对于函数和方法，这个过程决定了它们的参数类型和返回值类型。对于类型，导入的过程将做如下这些事情：
+
+- 将部分Objective-C类型重映射为Swift类型，例如`id`映射为`AnyObject`
+- 将部分Objective-C的核心数据类型重映射到Swift中的相应的类型，例如`NSString`映射为`String`
+- 将部分Objective-C中的概念映射为Swift中匹配的概念，例如指针映射为可选类型（Optional）
+
+在[互操作性](./2_互操作性.html)部分中，你将学到更多关于类型映射的内容，以及如何在你的Swift代码中利用它们。
+
+把Swift导入Objective-C的模型与把Objective-C导入Swift类似。Swift通过Swift模块声明框架的API。与这些模块一起的是生成的Objective-C头文件。这类头文件能把可以映射的API暴露给Objective-C。某些Swift API无法映射回Objective-C，因为它们利用了Objective-C中没有的语言特性。要了解更多关于如何在Objective-C中使用Swift的信息，可以查看[同一个项目中的Swift和Objective-C](./3_混合编程.html#同一个项目中的Swift和Objective-C)章节。
+
+> **提示**
+>
+> 你无法在Swift中直接导入C++代码。不过，你可以先用C或Objective-C封装你的C++代码。

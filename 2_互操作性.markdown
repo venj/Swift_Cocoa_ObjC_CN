@@ -1,0 +1,138 @@
+互操作性
+=======
+
+与Objective-C API交互
+--------------------
+
+*互操作性*能让Swift与Objective-C双向互为接口，使你能够在一种语言中访问和使用另一种语言编写的代码。当你开始把Swift整合进开发工作流，先理解如何利用互操作性来改善、改进和增强编写Cocoa应用是个好主意。
+
+关于互操作性的一个重要的方面是如何在你编写Swift代码时如何使用Objective-C的API。在导入Objective-C框架后，你可以用原生的Swift语法初始化类，并与之交互。
+
+#### 初始化
+
+要在Swift中初始化一个Objective-C的类，你可以用Swift的语法调用它的某个构造方法。在Swift中，"init"前缀被去除，变成了指示构造方法的一个关键词。对于以"initWith"开头的`init`方法，"With"也被去掉了。构造方法的方法名中，去掉了"init"或"initWith"之后的第一个词被小写后，被作为第一个参数的参数名。剩下的方法名片段也分别作为相应的参数名。所有的方法名片段都被包含进括号中，在调用方法时都是必须的。
+
+例如，在Objective-C中你会这么写：
+
+```
+UITableView *myTableView = ［[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+```
+
+这个语句在Swift中，是这么写的：
+
+```
+let myTableView : UITableView = UITableView(frame: CGRectZero, style: .Grouped)
+```
+
+你无需单独调用`alloc`；Swift会帮你正确处理的。需要注意的是，在调用Swift风格的构造方法时，没有出现"init"。
+
+你可以在初始化的时候显示地声明对象的类型，你也可以省略类型声明。Swift的类型推断（Type Inference）功能可以正确的确定对象的类型。
+
+```
+let myTextField = UITextField(frame: CGRect(x: 0.0, y: 0.0, width: 200.0, height: 40.0))
+```
+
+上述`UITableView`和`UITextField`对象有着你熟悉的与在Objective-C中的一样的功能。你可以像在Objective-C中一样使用它们，访问这些类的任何属性，调用任何方法。
+
+为了一致性和简单起见，Objective-C中的工厂方法在Swift中被映射为快捷构造方法（Convenient Initializer）。这样映射可以让它们像构造方法一样，使用同样易于理解的，简明的语法被调用。例如，在Objective-C中，你像这样调用工厂方法：
+
+```
+UIColor *color = [UIColor colorWithRed: 0.5 green: 0.0 blue: 0.5 alpha: 1.0];
+```
+
+在Swift中，你可以这样调用：
+
+```
+let color = UIColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0)
+```
+
+#### 可失败构造方法
+
+在Objective-C中，构造方法直接返回它们初始化的对象。要在初始化失败的时候告知调用者，Objective-C的构造方法会返回`nil`。在Swift中，这种模式成为一种语言特性，称为“*可失败构造方法（failable initializer）*”。
+
+iOS和OS X的系统框架中的很多Objective-C构造方法已经被修改为可以指示初始化是否会失败。你也可以在你自己的Objective-C类中使用*空值标记（nullability annotions）*指示构造方法是否会初始化失败，详见[空值和可选类型](#空值和可选类型)。根据是否会初始化失败，Objective-C的构造方法会被导入为`init(...)`--如果不会初始化失败，或者`init?(...)`--如果可能会初始化失败。否则，Objective-C的构造方法会被导入为`init!(...)`。
+
+例如，`UIImage(contentOfFile:)`构造方法在初始化`UIImage`对象的时候，在给定的路径下图片文件不存在时，就会初始化失败。你可以使用可选类型绑定（Optional Binding）来提取可失败构造方法在初始化成功后的结果。
+
+```
+if let image = UIImage(contentOfFile: "MyImage.png") {
+	// 图片载入成功
+} else {
+	// 无法载入图片
+}
+```
+
+#### 访问属性
+
+Objective-C中，使用`@property`语法来声明属性，在Swift中通过如下方法被导入：
+
+- 包含空值指示参数（`nonnull`，`nullable`和`null_resettable`）的属性，在导入为Swift属性的时候会导入为对应的可选类型或非可选类型，详见[空值和可选类型](#空值和可选类型)。
+- 包含`readonly`(只读)参数的属性，在Swift中被导入为只包含取值方法（gette）(`{getter}`)的计算属性（computed property）。
+- 包含`weak`（弱）参数的属性，在导入为Swift属性时也会使用`weak`关键词标注（`weak var`）。
+- 包含除`weak`外的其他所属关系参数（也就是`assign`，`copy`，`strong`或`unsafe_unretained`）的属性在导入为Swift属性的时候，会被正确的存储。
+- 包含原子性参数（`atomic`和`nonatomic`）的属性在Swift中被忽略。所有的Swift属性都是`nonatomic`的。
+- 属性的访问方法（accessor）参数（`getter=`和`setter=`）在Swift中被忽略。
+
+在Swift中访问Objective-C对象的属性使用点语法（dot syntax），属性名保持不变，后面无需括号。
+
+例如，你可以用如下代码为`UITextField`对象设置`textColor`和`text`属性：
+
+```
+myTextField.textColor = UIColor.darkGrayColor()
+myTextField.text = "Hello world"
+```
+
+> **提示**
+>
+> `darkGrayColor()`的后面是包含括号的，因为`darkGrayColor()`是`UIColor`类的一个方法，不是一个属性。
+
+Objective-C中，不包含参数，但是有返回值的方法可以像Objective-C属性一样用点语法调用。但是这些方法是作为实例方法导入Swift的，只有使用`@property`声明的Objective-C属性才会被导入为Swift属性。方法的导入和调用在[方法的使用](#方法的使用)部分介绍。
+
+#### 方法的使用
+
+从Swift中调用Objective-C方法时，使用点语法。
+
+当Objective-C方法导入Swift之后，Objective-C方法名（selector）的第一部分变成Swift的方法名，出现在括号外面。第一个参数紧随开括号出现，是没有参数名的。方法名的其他部分分别作为对应命名参数出现在括号中。在调用时，所有的参数都是必须的。
+
+例如，在Objective-C中，你会这样编写代码：
+
+```
+[myTableView insertSubview: mySubview atIndexPath: 2];
+```
+
+在Swift中，你这么写：
+
+```
+myTableView.insertSubview(mySubView, atIndexPath: 2)
+```
+
+如果你调用的方法没有参数，你依然需要在最后包含一个空括号。
+
+```
+myTableView.layoutIfNeeded()
+```
+
+#### id的兼容性
+
+Swift包含了一种称为`AnyObject`的协议类型（protocol type），可以代表任何类型的对象，就像Objective-C中的`id`一样。`AnyObject`协议使你能够在编写类型安全的Swift代码的同时，又不失去使用未指定类型的对象的弹性。因为Swift的AnyObject协议提供了额外的安全性，Swift会将`id`导入为`AnyObject`。
+
+例如，像`id`一样，你可以为类型为`AnyObject`的常量或变量赋任何类型的值。
+
+```
+var myObject : AnyObject = UITableViewCell()
+myObject = NSDate()
+```
+
+你也可以无需强制类型转化，就能调用任何Objective-C方法，访问任何属性。包括使用`@objc`注解（attribute）的Objective-C的兼容方法。
+
+```
+let futureDate = myObject.dateByAddingTimeInterval(10)
+let timeSinceNow = myObject.timeIntervalSinceNow
+```
+
+不过，声明为`AnyObject`的对象的类型要到运行时才被确定，因此可能会导致你不经意地编写了不安全的代码。和Objective-C中一样，如果你对一个`AnyObject`类型的对象调用了一个不存在的方法或访问了不存在的属性，会导致一个运行时错误。例如，下面这行代码能够顺利编译通过，但是在运行时会产生不识别的方法（unrecognized selector）错误：
+
+```
+myObject.charactorAtIndex(5)
+// 程序崩溃，myObject不能执行这个方法
+```
