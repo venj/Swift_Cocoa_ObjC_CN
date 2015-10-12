@@ -39,7 +39,7 @@ Swift项目的结构与Objective-C的项目结构几乎完全一样，除了一�
 
 所有Swift可以访问的Objective-C框架（或C程序库）都是以模块（*module*）的方式被直接导入的。这包括所有的Objective-C的系统框架--例如Foundation，UIKit和SpriteKit等--以及随系统提供的常用的C程序库。比如，要导入Foundation，你只需在你编写的Swift文件的最上方加上import语句：
 
-```
+``` swift
 import Foundation
 ```
 

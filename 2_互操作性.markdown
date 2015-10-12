@@ -14,13 +14,13 @@
 
 例如，在Objective-C中你会这么写：
 
-```
+``` objc
 UITableView *myTableView = ［[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
 ```
 
 这个语句在Swift中，是这么写的：
 
-```
+``` swift
 let myTableView : UITableView = UITableView(frame: CGRectZero, style: .Grouped)
 ```
 
@@ -28,7 +28,7 @@ let myTableView : UITableView = UITableView(frame: CGRectZero, style: .Grouped)
 
 你可以在初始化的时候显示地声明对象的类型，你也可以省略类型声明。Swift的类型推断（Type Inference）功能可以正确的确定对象的类型。
 
-```
+``` swift
 let myTextField = UITextField(frame: CGRect(x: 0.0, y: 0.0, width: 200.0, height: 40.0))
 ```
 
@@ -36,13 +36,13 @@ let myTextField = UITextField(frame: CGRect(x: 0.0, y: 0.0, width: 200.0, height
 
 为了一致性和简单起见，Objective-C中的工厂方法在Swift中被映射为快捷构造方法（Convenient Initializer）。这样映射可以让它们像构造方法一样，使用同样易于理解的，简明的语法被调用。例如，在Objective-C中，你像这样调用工厂方法：
 
-```
+``` objc
 UIColor *color = [UIColor colorWithRed: 0.5 green: 0.0 blue: 0.5 alpha: 1.0];
 ```
 
 在Swift中，你可以这样调用：
 
-```
+``` swift
 let color = UIColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0)
 ```
 
@@ -54,7 +54,7 @@ iOS和OS X的系统框架中的很多Objective-C构造方法已经被修改为�
 
 例如，`UIImage(contentOfFile:)`构造方法在初始化`UIImage`对象的时候，在给定的路径下图片文件不存在时，就会初始化失败。你可以使用可选类型绑定（Optional Binding）来提取可失败构造方法在初始化成功后的结果。
 
-```
+``` swift
 if let image = UIImage(contentOfFile: "MyImage.png") {
 	// 图片载入成功
 } else {
@@ -77,7 +77,7 @@ Objective-C中，使用`@property`语法来声明属性，在Swift中通过如�
 
 例如，你可以用如下代码为`UITextField`对象设置`textColor`和`text`属性：
 
-```
+``` swift
 myTextField.textColor = UIColor.darkGrayColor()
 myTextField.text = "Hello world"
 ```
@@ -96,19 +96,19 @@ Objective-C中，不包含参数，但是有返回值的方法可以像Objective
 
 例如，在Objective-C中，你会这样编写代码：
 
-```
+``` objc
 [myTableView insertSubview: mySubview atIndexPath: 2];
 ```
 
 在Swift中，你这么写：
 
-```
+``` swift
 myTableView.insertSubview(mySubView, atIndexPath: 2)
 ```
 
 如果你调用的方法没有参数，你依然需要在最后包含一个空括号。
 
-```
+``` swift
 myTableView.layoutIfNeeded()
 ```
 
@@ -118,21 +118,21 @@ Swift包含了一种称为`AnyObject`的协议类型（protocol type），可以
 
 例如，像`id`一样，你可以为类型为`AnyObject`的常量或变量赋任何类型的值。
 
-```
+``` swift
 var myObject : AnyObject = UITableViewCell()
 myObject = NSDate()
 ```
 
 你也可以无需强制类型转化，就能调用任何Objective-C方法，访问任何属性。包括使用`@objc`注解（attribute）的Objective-C的兼容方法。
 
-```
+``` swift
 let futureDate = myObject.dateByAddingTimeInterval(10)
 let timeSinceNow = myObject.timeIntervalSinceNow
 ```
 
 不过，声明为`AnyObject`的对象的类型要到运行时才被确定，因此可能会导致你不经意地编写了不安全的代码。和Objective-C中一样，如果你对一个`AnyObject`类型的对象调用了一个不存在的方法或访问了不存在的属性，会导致一个运行时错误。例如，下面这行代码能够顺利编译通过，但是在运行时会产生不识别的方法（unrecognized selector）错误：
 
-```
+``` swift
 myObject.charactorAtIndex(5)
 // 程序崩溃，myObject不能执行这个方法
 ```
