@@ -18,7 +18,7 @@ Swift被设计成可以跟Cocoa和Objective-C无缝兼容。你可以在Swift中
 
 要开始在Swift中实验各种Cocoa框架，你需要使用Xcode的模版创建基于Swift的应用。
 
-#### 在Xcode中创建一个Swift项目
+### 在Xcode中创建一个Swift项目
 
 1. 选择 File > New > Project > (iOS或OS X) > Application > 选择一个模版。
 2. 点击 Language 弹出菜单，选择 Swift 。
@@ -33,7 +33,7 @@ Swift项目的结构与Objective-C的项目结构几乎完全一样，除了一�
 >
 > 从命令行编译的可执行文件通过`@rpath`环境变量查找Swift库。如果你想从命令行编译Swift代码并发布可执行文件，你需要同时发布Swift的动态链接库。在Xcode里编译的Swift可执行文件会静态链接运行时环境。
 
-#### 理解Swift的框架导入过程
+### 理解Swift的框架导入过程
 
 在你设置完Xcode项目之后，你就可以导入任何Cocoa平台的框架，开始用Swift与Objective-C进行交互了。
 

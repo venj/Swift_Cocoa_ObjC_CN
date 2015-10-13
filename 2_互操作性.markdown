@@ -8,7 +8,7 @@
 
 关于互操作性的一个重要的方面是如何在你编写Swift代码时如何使用Objective-C的API。在导入Objective-C框架后，你可以用原生的Swift语法初始化类，并与之交互。
 
-#### 初始化
+### 初始化
 
 要在Swift中初始化一个Objective-C的类，你可以用Swift的语法调用它的某个构造方法。在Swift中，"init"前缀被去除，变成了指示构造方法的一个关键词。对于以"initWith"开头的`init`方法，"With"也被去掉了。构造方法的方法名中，去掉了"init"或"initWith"之后的第一个词被小写后，被作为第一个参数的参数名。剩下的方法名片段也分别作为相应的参数名。所有的方法名片段都被包含进括号中，在调用方法时都是必须的。
 
@@ -46,7 +46,7 @@ UIColor *color = [UIColor colorWithRed: 0.5 green: 0.0 blue: 0.5 alpha: 1.0];
 let color = UIColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0)
 ```
 
-#### 可失败构造方法
+### 可失败构造方法
 
 在Objective-C中，构造方法直接返回它们初始化的对象。要在初始化失败的时候告知调用者，Objective-C的构造方法会返回`nil`。在Swift中，这种模式成为一种语言特性，称为“*可失败构造方法（failable initializer）*”。
 
@@ -62,7 +62,7 @@ if let image = UIImage(contentOfFile: "MyImage.png") {
 }
 ```
 
-#### 访问属性
+### 访问属性
 
 Objective-C中，使用`@property`语法来声明属性，在Swift中通过如下方法被导入：
 
@@ -88,7 +88,7 @@ myTextField.text = "Hello world"
 
 Objective-C中，不包含参数，但是有返回值的方法可以像Objective-C属性一样用点语法调用。但是这些方法是作为实例方法导入Swift的，只有使用`@property`声明的Objective-C属性才会被导入为Swift属性。方法的导入和调用在[方法的使用](#方法的使用)部分介绍。
 
-#### 方法的使用
+### 方法的使用
 
 从Swift中调用Objective-C方法时，使用点语法。
 
@@ -112,7 +112,7 @@ myTableView.insertSubview(mySubView, atIndexPath: 2)
 myTableView.layoutIfNeeded()
 ```
 
-#### id的兼容性
+### id的兼容性
 
 Swift包含了一种称为`AnyObject`的协议类型（protocol type），可以代表任何类型的对象，就像Objective-C中的`id`一样。`AnyObject`协议使你能够在编写类型安全的Swift代码的同时，又不失去使用未指定类型的对象的弹性。因为Swift的AnyObject协议提供了额外的安全性，Swift会将`id`导入为`AnyObject`。
 
@@ -178,7 +178,7 @@ let myDate = lastReferenceDate as! NSString // 错误
 
 正因为如此，你只应该在你可以确信`AnyObject`对象的底层类型时，才使用强制类型转换。
 
-#### 空值和可选类型
+### 空值和可选类型
 
 （译者注：nullability这里翻译为空值，主要是为了不发明大家看不懂的新词。nullability的直译的话，意为“可否为空值的一种能力”。后文中nullbility将不会使用直译，我会根据上下文环境尽量避免晦涩，多用意译。）
 
@@ -226,7 +226,7 @@ func returnsUnannotatedValue() -> AnyObject!
 func takesUnannotatedParameter(value: AnyObject!)
 ```
 
-#### 轻量级泛型
+### 轻量级泛型
 
 Objective-C中，使用轻量级泛型进行参数化的声明的`NSArray`，``NSSet`和`NSDictionary`类型，在导入Swift的时候，参数的类型信息会被保留。
 
@@ -250,7 +250,7 @@ var cachedData : [NSURL : NSData]
 >
 > 除了这些Foundation框架中的集合类之外，Objective-C的轻量级泛型会被Swift忽略。其他任何使用了轻量级泛型的类型在导入Swift的时候，都会被去参数化。
 
-#### 扩展
+### 扩展
 
 Swift的扩展(Extension)与Objective-C的扩展（Category）类似。*扩展*可以为已有的类、结构体和枚举，甚至是那些在Objective-C中定义的类型，增加新的行为。无论是系统框架中定义的类，还是你自己的自定义类型，你都可以为它们定义扩展。你只需导入适当的模块，用类、结构体或枚举的名字来使用它们，就像在Objective-C中一样。
 
@@ -288,4 +288,50 @@ let area = rect.area
 你还可以使用扩展来增加协议支持，而无需创建子类。如果协议是在Swift中定义的，那么不管结构体和枚举是在Swift还是在Objective-C中定义的，你都可以通过扩展让它们支持该协议。
 
 你不能使用扩展来覆盖Objective-C类型的已有的方法或属性。
+
+### 闭包
+
+用`@convention(block)`注解标记的Objective-C的块（block）在导入为Swift闭包时，使用Objective-C的调用规则。例如，下面的这个Objective-C的块变量：
+
+``` objc
+void (^completionBlock)(NSData *, NSError *) = ^(NSData *data, NSError *error) {
+	// ...
+}
+```
+
+导入Swift后，它是这样的：
+
+``` swift
+let completionBlock: (NSData, NSError) -> Void = { (data, error) in
+	// ...
+}
+```
+
+Swift的闭包与Objective-C的块是兼容的，你可以为接受块参数的Objective-C方法传一个Swift的闭包。如果Swift的闭包和函数有相同的类型签名，你甚至可以直接传一个Swift函数名。
+
+闭包与块有着相似的值捕获语义（capture semantics），但是有一个关键的地方不一样：变量是可以被更改的，而不是被复制的。换句话说，Objective-C中，需要使用`__block`标记的变量的行为，在Swift中是默认行为。
+
+#### 捕获self的时候避免强引用循环
+
+在Objective-C中，如果你需要在块中捕获`self`，你需要考量一下内存管理机制。
+
+块会对捕获的对象，包括`self`，保持强引用。如果`self`也对块保持了强引用，比如复制属性，这样就会造成强引用循环。要避免这个问题，你可以让块捕获`self`的一个弱引用：
+
+``` objc
+__weak typeof(self) weakSelf = self;
+self.block = ^{
+	__strong typeof(self) strongSelf = weakSelf;
+	[strongSelf doSomething];
+}
+```
+
+与Objective-C的块一样，Swift也会对捕获的任何对象，包括`self`，保持一个强引用。要避免强引用循环，你需要在闭包的捕获列表中，把`self`标记为`unowned`：
+
+``` swift
+self.closure = ^{ [unowned self] in
+	self.doSomething()
+}
+```
+
+要了解更多信息，请参考*Swift编程语言（Swift 2版）*的“解决闭包的强引用循环”章节。
 
