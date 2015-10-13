@@ -50,7 +50,7 @@ let color = UIColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0)
 
 在Objective-C中，构造方法直接返回它们初始化的对象。要在初始化失败的时候告知调用者，Objective-C的构造方法会返回`nil`。在Swift中，这种模式成为一种语言特性，称为“*可失败构造方法（failable initializer）*”。
 
-iOS和OS X的系统框架中的很多Objective-C构造方法已经被修改为可以指示初始化是否会失败。你也可以在你自己的Objective-C类中使用*空值标记（nullability annotions）*指示构造方法是否会初始化失败，详见[空值和可选类型](#空值和可选类型)。根据是否会初始化失败，Objective-C的构造方法会被导入为`init(...)`--如果不会初始化失败，或者`init?(...)`--如果可能会初始化失败。否则，Objective-C的构造方法会被导入为`init!(...)`。
+iOS和OS X的系统框架中的很多Objective-C构造方法已经被修改为可以指示初始化是否会失败。你也可以在你自己的Objective-C类中使用*可空性标记（nullability annotions）*指示构造方法是否会初始化失败，详见[空值和可选类型](#空值和可选类型)。根据是否会初始化失败，Objective-C的构造方法会被导入为`init(...)`--如果不会初始化失败，或者`init?(...)`--如果可能会初始化失败。否则，Objective-C的构造方法会被导入为`init!(...)`。
 
 例如，`UIImage(contentOfFile:)`构造方法在初始化`UIImage`对象的时候，在给定的路径下图片文件不存在时，就会初始化失败。你可以使用可选类型绑定（Optional Binding）来提取可失败构造方法在初始化成功后的结果。
 
@@ -136,3 +136,117 @@ let timeSinceNow = myObject.timeIntervalSinceNow
 myObject.charactorAtIndex(5)
 // 程序崩溃，myObject不能执行这个方法
 ```
+
+你可以利用Swift的可选类型来消除这类常见的Objective-C错误。当你对`AnyObject`对象调用Objective-C方法的时候，方法调用的行为实际上于隐式解包可选类型（implicit unwrapped optionals）差不多。你可以用像在调用协议中的可选方法时使用的可选调用链（Optional Chaining）一样，来对`AnyObject`对象可选地触发一个方法。
+
+> **提示**
+>
+> 访问AnyObject类型的对象的属性，总是返回可选类型值。
+
+例如，在下面列出的代码中，第一行和第二行没有被执行，因为`count`属性和`characterAtIndex:`方法在`NSDate`对象中不存在。`myCount`常量被推断为可选`Int`类型，然后被赋值为`nil`。你也可以使用`if`-`let`语句来有条件地提取对象可能无法响应的方法的执行结果，就像第三行代码展示的那样。
+
+``` swift
+let myCount = myObject.count
+let myChar = myObject.characterAtIndex?(5)
+if let fifthCharacter = myObject.characterAtIndex?(5) {
+	print("Found \(fifthCharacter) at Index 5")
+}
+```
+
+当你处理底层类型已知或者可以被合理推断出来的`AnyObject`对象的时候，我们通常会把对象向下转换为某个更加特定的类型。但是因为`AnyObject`可能代表任何类型的对象，类型转换并不能保证成功。你可以使用条件类型转换操作符（`as?`）来进行转换操作，用它将返回一个你尝试转换为的类型的可选类型：
+
+``` swift
+let userDefaults = NSUserDefaults.standardUserDefaults()
+let lastRefreshDate : AnyObject? = userDefaults.objectForKey("LastRefreshDate")
+if let date = lastRefreshDate as? Date {
+	print("\(date.timeIntervalSinceReferenceDate)")
+}
+```
+
+另外，你也可以使用强制向下转换操作符（`as!`），用它将返回一个你要转换成的类型的非可选的值：
+
+``` swift
+let myDate = lastReferenceDate as! NSDate
+let timeInterval = myDate.timeIntervalSinceReferenceDate
+```
+
+不过，如果强制类型转换失败了，将会触发一个运行时错误：
+
+``` swift
+let myDate = lastReferenceDate as! NSString // 错误
+```
+
+正因为如此，你只应该在你可以确信`AnyObject`对象的底层类型时，才使用强制类型转换。
+
+#### 空值和可选类型
+
+（译者注：nullability这里翻译为空值，主要是为了不发明大家看不懂的新词。nullability的直译的话，意为“可否为空值的一种能力”。后文中nullbility将不会使用直译，我会根据上下文环境尽量避免晦涩，多用意译。）
+
+在Objective-C中，你使用原生的指针来操作可能为`NULL`(在Objective-C中被称为`nil`)的引用。在Swift中，所有的值--包括结构体和对象引用--总是为非空的。取而代之，你需要将可能为空的值封装到一个可选类型（optional type）中。当你需要指示值为空的时候，你可以使用nil。要了解更多关于可选类型的信息，你可以参阅*Swift编程语言（Swift 2版）*的可选类型章节。
+
+Objective-C可以使用空值标记（nullability annotation）来标示参数、属性或返回值能否包含`NULL`或`nil`。单独的类型声明可以使用`_Nullable`和`_Nonnull`标记，单独的属性声明可以使用`nullable`，`nonnull`和`null_resettable`标记，或者你也可以使用`NS_ASSUME_NONNULL_BEGIN`和`NS_ASSUME_NONNULL_END`宏来标记一整块区域接受和返回非空值。如果类型没有空值标记信息，Swift就无法区分可选和非可选的引用了，它们将被作为隐式解包可选类型被导入。
+
+- 无论是用`_Nonnull`标记或者包围在非空宏被声明为不为空的类型，作为非可选类型导入Swift。
+- 使用`_Nullable`标记为可为空的类型，作为可选类型导入Swift。
+- 没有使用空值标记的类型，作为隐式解包可选类型导入Swift。
+
+例如，来看看的这段Objective-C声明：
+
+``` objc
+@property (nullable) id nullableProperty;
+@property (nonnull) id nonNullProperty;
+@property id unannotatedProperty;
+
+#NSASSUME_NONNULL_BEGIN
+- (id)returnsNonNullValue;
+- (void)takesNonNullParameter:(id)value;
+#NSASSUME_NONNULL_END
+
+- (nullable id) returnsNullableValue;
+- (void) takesNullableParameter:(nullable id)value;
+
+- (id)returnsUnannotatedValue;
+- (void)takesUnannotatedParameter:(id)value;
+```
+
+它们是这样被导入Swift的：
+
+``` swift
+var nullableProperty : AnyObject?
+var nonNullProperty : AnyObject
+var unannotatedProperty : AnyObject!
+
+func returnsNonNullValue() -> AnyObject
+func takesNonNullParameter(value: AnyObject)
+
+func returnsNullableValue() -> AnyObject?
+func takesNullableParameter(value: AnyObject?)
+
+func returnsUnannotatedValue() -> AnyObject!
+func takesUnannotatedParameter(value: AnyObject!)
+```
+
+#### 轻量级泛型
+
+Objective-C中，使用轻量级泛型进行参数化的声明的`NSArray`，``NSSet`和`NSDictionary`类型，在导入Swift的时候，参数的类型信息会被保留。
+
+例如，下面的这段Objective-C的属性声明：
+
+``` objc
+@property NSArray<NSDate *> *dates;
+@property NSSet<NSString *> *words;
+@property NSDictionary<NSURL *, NSData *> *cachedData;
+```
+
+是这样导入Swift的：
+
+``` swift
+var dates : [NSDate]
+var words : Set<String>
+var cachedData : [NSURL : NSData]
+```
+
+> **提示**
+>
+> 除了这些Foundation框架中的集合类之外，Objective-C的轻量级泛型会被Swift忽略。其他任何使用了轻量级泛型的类型在导入Swift的时候，都会被去参数化。
+
