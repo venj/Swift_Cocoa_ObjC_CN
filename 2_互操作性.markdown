@@ -335,3 +335,54 @@ self.closure = ^{ [unowned self] in
 
 要了解更多信息，请参考*Swift编程语言（Swift 2版）*的“解决闭包的强引用循环”章节。
 
+### 对象比较
+
+在比较两个对象的时候，Swift中有两种不同的比较方法。第一种，是*相等*（`==`），比较两个对象的内容。第二种，是*相同（`===`）*，比较常量或变量指向的对象是否为同一个对象实例。
+
+在Swift中，Swift和Objective-C的对象通常使用`==`和`===`操作符进行比较。Swift为派生自`NSObject`类的对象提供了一个默认的`==`操作符实现。这个操作符的视线中，Swift会触发`NSObject`类中定义的的`isEqual:`方法。`NSObject`类只会比较两者是否为同一个对象，因此，如果你的类派生自`NSObject`，你需要实现你自己的`isEqual:`方法。因为你向Objective-C的API传入Swift对象（包括那些不是派生自`NSObject`的对象），因此，如果你希望Swift类在Objective-C的API中也是比较内容，而不是比较是否相同，你也应该为那些类实现`isEqual:`方法。
+
+作为显现类的相等性的一部分，根据对相比较的规则，请确保实现`hash`属性。另外，如果你希望你的类可以用作字典的键，请遵守`Hashable`协议，并实现`hashValue`属性。
+
+### Swift类型的兼容性
+
+当你创建了一个派生自Objective-C类的Swift类，这个类以及它的与Objective-C兼容的成员--属性、方法、下标（subscript，译者注：也就是从一组值中用索引取值的方法）以及构造方法等--会自动对Objective-C可用。在某些情况下，你可能需要精细控制如何将Swift API暴露给Objective-C。如果你的Swift类并不是派生自Objective-C的类，或者你希望修改暴露给Objective-C代码接口的方法名，你可以在Swift类中使用`@objc`注解。如果你使用了类似“键-值观察（key-value observing）”这样动态替换方法实现的的API，你也可以使用`dynamic`修饰符来标记这些通过Objective-C运行时被动态设置的类成员。
+
+#### 在Swift中对Objective-C暴露接口
+
+当你定义了一个派生自`NSObject`或其他Objective-C类的Swift类，这个类会自动与Objective-C兼容。如果你的Swift类并非派生自Objective-C的类，但是你希望你可以在Objective-C代码中访问这个类的API，你可以使用在下面介绍的`@objc`注解。
+
+`@objc`注解使你的Swift API在Objective-C以及Objective-C的运行时环境中可用。换句话说，要在Objective-C代码中使用Swift代码，你要在Swift的方法、属性、下标、构造方法、类、协议、或枚举的前面使用`@objc`注解。
+
+> **提示**
+>
+> 嵌套的类型定义是不能用`@objc`注解标记的。
+>
+> 只有使用基本整数类型，如`Int`作为其原始值的Swift枚举，才能使用`@objc`注解。
+
+如果你的类派生自Objective-C类，编译器会自动为你插入注解。编译器也会为标记有`@objc`注解的类的所有成员加上注解。当你使用`@IBOutlet`，`@IBAction`，或`@NSManaged`注解时，也会自动加上`@objc`注解。
+
+需要注意的是，只有派生自`NSObject`的类才能用`@objc`整体标记（编译器会自动标记），但是，如果类并不是派生自`NSObject`，你依然可以用`@objc`标记类内的API。这在调用接受选择器（selector）的Objective-C API，来实现像目标-动作（target-action）设计模式时特别有用，比如`NSTimer`或`UIButton`。
+
+> **提示**
+>
+> 编译器不会为使用`private`访问级别修饰符的声明自动添加`@objc`注解。
+
+当你在Objective-C中使用Swift API的时候，编译器通常时直接翻译。比如，这个Swift的API `func playSong(name: String)`，导入Objective-C的时候是这样的`- (void)playSong:(NSString *)name`。不过有一个例外：当你在Objective-C中使用Swift的构造函数时，编译器会在方法名前面加上"initWith"，并把第一个参数名首字母大写。例如这个Swift构造器：`init(songName: String, artist: String)`在Objective-C中导入为`- (instanceType)initWithSongName:(NSString *)songName artist:(NSString *)artist`。
+
+Swift还提供了一个`@objc`注解的变体，用来指定暴露给Objective-C的符号名。例如，如果Swift类包含Objective-C不支持的字符，你可以指定一个Objective-C可用的备用名。如果你是为Swift方法指定备用名，请使用Objective-C的选择器语法。记得在选择的各部分之间加上冒号`:`。
+
+``` swift
+@objc(Squirrel)
+class 松鼠 : NSObject {
+	@objc(initWithName:)
+	init(名字: String) {
+		// ...
+	}
+
+	@objc(hideNuts:inTree:)
+	func 收藏(几: Int, 个坚果到大树 大树: 树) {
+		// ...
+	}
+}
+```
+
