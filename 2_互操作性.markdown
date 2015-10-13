@@ -250,3 +250,42 @@ var cachedData : [NSURL : NSData]
 >
 > 除了这些Foundation框架中的集合类之外，Objective-C的轻量级泛型会被Swift忽略。其他任何使用了轻量级泛型的类型在导入Swift的时候，都会被去参数化。
 
+#### 扩展
+
+Swift的扩展(Extension)与Objective-C的扩展（Category）类似。*扩展*可以为已有的类、结构体和枚举，甚至是那些在Objective-C中定义的类型，增加新的行为。无论是系统框架中定义的类，还是你自己的自定义类型，你都可以为它们定义扩展。你只需导入适当的模块，用类、结构体或枚举的名字来使用它们，就像在Objective-C中一样。
+
+比如，你可以像下面这样扩展`UIBezierPath`类，利用边长和起始点来创建一个简单的等边三角形贝塞尔曲线。
+
+``` swift
+extension UIBezierPath {
+	convenience init(triangleSideLength: CGFloat, origin: CGPoint) {
+		self.init()
+		let squareRoot = CGFloat(sqrt(3.0))
+		let altitude = (squareRoot * triangleSideLegth) / 2
+		moveToPoint(origin)
+		addLineToPoint(CGPoint(x: origin.x + triangleSideLength, y: origin,y))
+		addLineToPoint(CGPoint(x: origin.x + triangleSideLength / 2, y: origin.y + altitude))
+		closePath()
+	}
+}
+```
+
+你也可以使用扩展增加属性（包括类属性和静态属性）。不过这些属性必须为计算属性；扩展无法为类、结构体或枚举增加带存储的属性。
+
+下面这个扩展的例子展示了如何为`CGRect`结构体增加一个计算属性`area`：
+
+``` swift
+extension CGRect {
+	var area : CGFloat {
+		return width * height
+	}
+}
+
+let rect = CGRect(x: 0.0, y: 0.0, width: 10.0, height: 50.0)
+let area = rect.area
+```
+
+你还可以使用扩展来增加协议支持，而无需创建子类。如果协议是在Swift中定义的，那么不管结构体和枚举是在Swift还是在Objective-C中定义的，你都可以通过扩展让它们支持该协议。
+
+你不能使用扩展来覆盖Objective-C类型的已有的方法或属性。
+
