@@ -386,3 +386,18 @@ class 松鼠 : NSObject {
 }
 ```
 
+当你对Swift的类使用`@objc(`*name*`)`注解的时候，这个类会在Objective-C中可用，并且不在任何名字空间内。因此，这个注解在你迁移一个可以存档（archivable）的Objective-C类到Swift的时候也很有用。因为可以存档的对象会保存它们的类名到存档文件（archive）中，你应该使用`@objc(`*name*`)`注解来指定与Objective-C类一样的名字，这样，旧的存档文件才能被你的新Swift类解包（unarchive）。
+
+> **提示**
+>
+> 相对的，Swift也可以用`@nonobjc`注解，让Swift中的声明在Objective-C中不可用。你可以用这个方法来解决桥接方法（bridging methods）的循环引用，这样就可以覆盖用`@objc`注解标记的类中的方法。如果一个Objective-C的方法被Swift的方法覆盖，但该方法无法在Objective-C中表示，例如，通过指定一个参数为变量，拿个方法必须标记为`@nonobjc`。（译者注：__FIXME__此处意思不太明确）
+
+#### 需要动态分配
+
+尽管`@objc`注解能把你的Swift API暴露给Objective-C运行时环境，但是它无法确保属性、方法、下标或构造器的动态分配（dynamic dispatch）。Swift编译器可能依然会去虚化（devirtualize）或内嵌（inline）访问成员，绕过Objective-C环境，优化你的代码的性能。当你用`dynamic`修饰符标记成员的声明，访问这个成员的时候，能保证它总是动态分配的。因为用`dynamic`修饰符标记的声明总是通过Objective-C运行时环境动态分配，它们被隐性地标记了`@objc`注解。
+
+需要动态分配的场景很少。不过如果你知道某个API的实现会被运行时替换，那么你就必须使用`dynamic`修饰符。例如，你可以使用Objective-C运行时环境的`method_exchangeImplementations`方法在程序运行时替换到一个方法的实现。如果Swift编译器内嵌了方法的实现，或者把它的访问去虚化了，那么新的实现将不被使用。
+
+### Objective-C的方法选择器
+
+Objective-C的方法选择器是一种指向Objective-C方法名的类型。
