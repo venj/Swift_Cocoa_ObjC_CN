@@ -400,4 +400,84 @@ class 松鼠 : NSObject {
 
 ### Objective-C的方法选择器
 
-Objective-C的方法选择器是一种指向Objective-C方法名的类型。
+Objective-C的方法选择器是一种指向Objective-C方法名的类型。在Swift中，Objective-C的方法选择器用`Selector`结构体表示。你可以用一个字符串来构造一个方法选择器，例如`let mySelector: Selector = "tappedButton:"`。因为字符串可以自动转换为方法选择器，所以你可以给所有接受方法选择器参数的方法传入一个字符串。
+
+``` swift
+import UIKit
+
+class MyViewController : UIViewController {
+	let myButton = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
+
+	override init?(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+		super.init(nibName: nibNameOrNil, bundle: nilBundleOrNil)
+		myButton.addTarget(self, action: "tappedButton:", forControlEvents: .TouchUpInside)
+	}
+
+	func tappedButton(sender:UIButton) {
+		print("tapped button")
+	}
+
+	required init?(coder:NSCoder) {
+		super.init(coder: coder)
+	}
+}
+```
+
+如果你的Swift类继承自Objective-C类，类中的所有的方法和属性都可以用作Objective-C的方法选择器。反之，如果你的Swift类并没有继承自Objective-C类，那么你需要使用`@objc`注解标注你想用作方法选择器的成员，就像在[Swift类型的兼容性](#Swift类型的兼容性)中描述的那样。
+
+#### 用performSelector来发送消息
+
+（译者注：Objective-C的发送消息，在其他语言中叫做方法调用，两者有所区别，但是基本作用相同。）
+
+你可以使用`performSelctor(_:)`及其变体向Objective-C兼容的对象发送消息。
+
+`performSelector` API可以向某个线程或在一段时间的延迟后发送的消息，是没有返回值的。同步执行的`performSelector` API返回一个隐式解包的非托管的可选类型实例（`Unmanaged<AnyObject>!`），因为执行方法选择器得到返回值的类型、所属关系在编译时无法知晓。你可以阅读[非托管对象](#非托管对象)章节了解更多信息。
+
+``` swift
+let string: NSString = "Hello, Cocoa!"
+let selector: Selector = "lowercaseString"
+if let result = string.performSelector(selector) {
+	print(result.takeUnretainedValue())
+}
+// 打印出 "hello, cocoa!"
+```
+
+向对象发送一个无法识别的方法选择器，会导致接收者去调用`doesNotRecognizeSelector(_:)`，这个方法默认引发一个`NSInvalidArgumentException`异常。
+
+``` swift
+let array: NSArray = ["delta", "alpha", "zulu"]
+let invalidSelecto: Selector = "invalid"
+array.performSelector(invalidSelector) // 引发一个异常
+```
+
+在Objective-C运行时向对象直接发送消息在本质上是不安全的，因为编译器无法对发送消息得到的结果作保证，甚至无法保证对象可以接收某个消息。因此，通常是不鼓励使用`performSelector` API的，除非你的代码对Objective-C运行时提供的动态方法解析有特殊需求。否则，把一个类型的对象转换成`AnyObject`，然后使用可选调用链来调用方法会安全很多。详见[id的兼容性](#id的兼容性)。
+
+编写具备Objective-C行为的Swift类
+------------------------------
+
+互操作性是你能够定义具备Objective-C行为的Swift类。你可以在编写Swift类的时候继承Objective-C的类，接受Objective-C的协议，并利用其他Objective-C的功能。这意味着你可以创建基于你熟悉的、有着明确Objective-C行为的类创建子类，同时，你可以使用Swift的现代、强大的语言特征来增强它。
+
+### 继承Objective-C的类
+
+在Swift中，你可以定义Objective-C类的子类。要创建一个继承自Objective-C类的Swift类，你可以在Swift的类名后架上冒号（`:`），再加上Objective-C类的名字。
+
+``` swift
+import UIKit
+class MySwiftViewController : UIViewController {
+	// 定义这个类
+}
+```
+
+你可以获得用Objective-C定义的超类的所有功能。如果你要为超类中的同名方法提供你自己的实现，你需要使用`override`关键字。
+
+#### NSCoding
+
+`NSCoding`协议要求符合改协议的类型实现`init(coder:)`构造方法。直接接受`NSCoding`协议的类必须实现这个方法，该类的子类如果有一个以上自定义构造方法、或包含没有初始值的属性，那么它也必须接受`NSCoding`协议。Xcode提供了下面这个自动修正（fix-it）功能，提供了一个默认实现：
+
+``` swift
+required init(coder aDecoder: NSCoder) {
+	fatalError("init(coder:) has not been implemented")
+}
+```
+
+对于从StoryBoard中加载的对象，或者用`NSUserDefaults`或`NSKeyedArchiver`从磁盘上解包的对象，你必须为这个构造函数提供一个完整的实现。不过，你可能不需要为那些无法或不会通过这种途径初始化的类型实现这个构造方法。
