@@ -481,3 +481,30 @@ required init(coder aDecoder: NSCoder) {
 ```
 
 对于从StoryBoard中加载的对象，或者用`NSUserDefaults`或`NSKeyedArchiver`从磁盘上解包的对象，你必须为这个构造函数提供一个完整的实现。不过，你可能不需要为那些无法或不会通过这种途径初始化的类型实现这个构造方法。
+
+### 支持协议
+
+Objective-C的协议会导入为Swift的协议，类可以通过在其父类名后，加上逗号分割的协议名列表，来支持协议，如果需要的话。
+
+``` swift
+class MySwiftViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
+	// 定义这个类
+}
+```
+
+在Swift代码中，要定义一个符合单个协议的类型，可以直接使用协议名作为其类型（对比Objective-C中的`id<SomeProtocal>`）。要在Swift代码中定义一个符合多个协议的类型，可以使用复合协议（protocal composition），形如`protocal<SomeProtocal, AnotherProtocal>`（对比Objective-C中的`id<SomeProtocal, AnotherProtocal>`）。
+
+``` swift
+var textFieldDelegate: UITableViewDelegate
+var tableViewController: protocal<UITableViewDataSource, UITableViewDelegate>
+```
+
+> **提示**
+>
+> 因为Swift中的类和协议使用同一个名字空间，因此，Objective-C中的`NSObject`协议在Swift中被映射为`NSObjectProtocal`。
+
+### 编写构造方法和析构方法
+
+Swift的编译器会确保你的构造方法不会遗留任何没有初始化的属性以增强代码的安全性和可预测性。另外，与Objective-C不同的是，Swift不需要额外调用内存分配方法。即便你在使用Objective-C的类，你也只需要使用原生的Swift构造语法--Swift会把Objective-C的构造方法转换成Swift的构造方法。你可以阅读**构造方法**章节，了解更多关于如何实现你自己的构造方法的信息。
+
+当你需要在对象被回收时，作一些额外的清理工作，你可以实现一个析构方法，而不是使用`dealloc`方法。Swift的析构方法会在实例被回收前自动调用。Swift会在触发字类的析构方法后，自动调用父类的析构方法。当你使用Objective-C类，或者你的Swift类继承自Objective-C类，Swift一样也会调用该类的父类的`dealloc`方法。你可以阅读*Swift编程语言（Swift 2版）*的**析构方法**章节了解更多关于如何实现你自己的析构方法的信息。
