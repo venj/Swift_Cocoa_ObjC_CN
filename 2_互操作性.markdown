@@ -508,3 +508,58 @@ var tableViewController: protocal<UITableViewDataSource, UITableViewDelegate>
 Swift的编译器会确保你的构造方法不会遗留任何没有初始化的属性以增强代码的安全性和可预测性。另外，与Objective-C不同的是，Swift不需要额外调用内存分配方法。即便你在使用Objective-C的类，你也只需要使用原生的Swift构造语法--Swift会把Objective-C的构造方法转换成Swift的构造方法。你可以阅读**构造方法**章节，了解更多关于如何实现你自己的构造方法的信息。
 
 当你需要在对象被回收时，作一些额外的清理工作，你可以实现一个析构方法，而不是使用`dealloc`方法。Swift的析构方法会在实例被回收前自动调用。Swift会在触发字类的析构方法后，自动调用父类的析构方法。当你使用Objective-C类，或者你的Swift类继承自Objective-C类，Swift一样也会调用该类的父类的`dealloc`方法。你可以阅读*Swift编程语言（Swift 2版）*的**析构方法**章节了解更多关于如何实现你自己的析构方法的信息。
+
+### 在Objective-C API中使用Swift的类名
+
+Swift的类是基于它们编译进的模块来确定名字空间的，即便是用于Objective-C的代码中时也一样。和所有的类都在全局名字空间中，从而不能包含两个同名类的Objective-C不一样，Swift的类可以通过它们所处的模块进行区分。例如，在名为`MyFramework`的框架中，名为`DataManager`的类的全名`MyFramework.DataManager`。Swift应用的编译目标（Target）也是一个模块，因此在一个叫做`MyGreatApp`的应用中，名为`Observer`的类的全名为`MyGreatApp.Observer`。
+
+为了保留在Objective-C中使用的Swift类的名字空间，Swift的类暴露给Objective-C运行时环境的时候，暴露的是全名。因此，当你使用以字符串的形式操作Swift的类名的时候，你必须使用类的全名。例如，当你需要创建一个基于文档的Mac应用的时候，你需要在应用的`Info.plist`文件中指定`NSDocument`子类的类名。如果你是用Swift编写应用，那么你必须使用这个文档子类的全名，也就是要包含了基于应用或框架的模块名。
+
+在下面这个示例中，`NSClassFromString`函数用来通过字符串形式的类名来获取类的引用。要获取一个Swift类，你就必须使用包含了应用名的类的全名：
+
+``` swift
+let myPersonClass: AnyClass? = NSClassFromString("MyGreatApp.Person")
+```
+
+### 与Interface Builder整合
+
+（译者注：Interface Builder作为一个Xcode的一个组件，我没有给出翻译。一方面翻译后听起来很别扭；另一方面，也不方便用户对照查找。Interface Builder字面上的意思“界面构建器”。）
+
+Swift编译器包含了能让你的Swift类与Interface Builder交互的注解。和在Objective-C中一样，你可以使用外连（outlets），动作（actions）和实时渲染。
+
+（译者注：outlet在业界还没有统一的翻译，这里暂时翻译成外连。后文中可能会根据情况，保留英文原文。）
+
+#### 使用外连和动作
+
+外连和动作能把你的源代码和Interface Builder中的用户界面对象连接起来。要在Swift中使用外连和动作，你可以在属性和方法声明的前面分别加上`@IBOutlet`和`@IBAction`注解。`@IBOutlet`也可以用来声明外连集合（outlet collection）--只需指定类型为数组。
+
+当你在Swift中声明外连的时候，你需要把类型设置为隐式解包可选类型（implicit unwrapped optional）。这样，storyboard就能在初始化之后，通过运行时把外连和界面连接起来了。当你的类通过storyboard或xib文件初始化完成后，你就可以认为外连已经连接好了。
+
+例如，下面这段Swift代码定义了一个包含有一个外连，一个外连集合和一个动作的类：
+
+``` swift
+class MyViewController : UIViewController {
+	@IBOutlet weak var button: UIButton!
+	@IBOutlet var textFields: [UITextField]!
+	@IBAction func buttonTapped(_: AnyObject) {
+		print("button tapped!")
+	}
+}
+```
+
+因为`sender`参数在`buttonTapped`方法中没有用到，因此参数名可以忽略。
+
+#### 实时渲染
+
+你可以使用另外两个注解--`@IBDesignable`和`@IBInspectable`--来使用实时渲染，在Interface Builder中与自定义视图（View）进行交互。当你创建了一个派生自`UIView`或`NSView`类的自定义视图的时候，你就可以在类声明的前面加上`@IBDesignable`注解。当你把这个自定义视图加入Interface Builder中之后（通过在inspector面板中，设置视图对应的自定义类），Interface Builder就会在画板（Canvas）上对你的视图进行实时渲染。
+
+你还可以对支持自定义的类型的属性使用`@IBInspectable`注解。在你把自定义视图加入Interface Builder中之后，你就能在inspector面板中编辑这些属性了。
+
+``` swift
+@IBDesignable
+class MyCustomView: UIView {
+	@IBInspectable var textColor: UIColor
+	@IBInspectable iconHeight: CGFloat
+	// ...
+}
+```
