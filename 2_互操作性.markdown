@@ -563,3 +563,57 @@ class MyCustomView: UIView {
 	// ...
 }
 ```
+
+### 指定属性的注解
+
+（译者注：这里把描述属性的参数也一并翻译为注解。注意区别于Java中的注解概念，两者有相似点，但是并不是同一概念。）
+
+在Objective-C中，属性有一系列可以指定关于属性行为的额外信息的注解。在Swift中，你用不同的方式来指定这些属性注解。
+
+#### 强引用和弱引用
+
+Swift的属性默认是强引用。你需要使用`weak`关键词来表明属性指向的存储属性值的对象使用的是弱引用。这个关键词只能被用于可选类型的属性。详情请参阅*Swift编程语言（Swift 2版）*的“参数（Attributes）”章节。
+
+#### 读写与只读
+
+在Swift中，没有`readwrite`和`readonly`注解。当声明存储属性时，使用`let`来使之成为只读，使用`var`来使之可以读写。当声明计算属性的时候，只提供取值方法（getter）使之成为只读，同时提供取值方法（getter）和赋值方法（setter）使之可以读写。要了解更多信息，请查看*Swift编程语言（Swift 2版）*。
+
+#### 复制语义
+
+在Swift中，Objective-C的`copy`属性注解被转译为`@NSCopying`。属性的类型需要复合`NSCopying`协议。要了解更多信息，请查看*Swift编程语言（Swift 2版）*的“参数（Attributes）”章节。
+
+### 实现Core Data的托管对象子类
+
+（译者注：这里Managed Object翻译成托管对象。如果你学过.NET，请不要把这里的托管对象与.NET里的托管对象混淆，两者概念不一样。）
+
+Core Data为`NSManagedObject`的子类提供了属性的底层存储和实现的支持。Core Data还提供了从对多关系（to-many relationship）增加和删除对象的实例方法的实现。你可以使用`@NSManaged`注解来告诉Swift编译器，Core Data会在运行时提供存储和实现。
+
+你需要在你的托管类的子类中，为所有与Core Data模型相关的属性和关系有关的属性和方法声明加上`@NSManaged`注解。比如，假设有一个名为“Person”的Core Data实体（Entity）有一个字符串属性“name”，以及一个对多的关系“friends”：
+
+![img](./pics/pic_2.1.png)
+
+以下是`NSManagedObject`子类的`Person`对应的Swift代码：
+
+``` swift
+import CoreData
+class Person : NSManagedObject {
+	@NSManaged var name: String
+	@NSManaged var friends: NSSet
+
+	@NSManaged func addFriendsObject(friend: Person)
+	@NSManaged func removeFriendsObject(friend: Person)
+	@NSManaged func addFriends(friends: NSSet)
+	@NSManaged func addFriends(friends: NSSet)
+}
+```
+
+`name`和`friends`属性声明都使用了`@NSManaged`注解，用来指示Core Data在运行时为它们提供了存储和实现。因为`friends`属性是对多关系，Core Data还提供了一系列对应的访问方法实现。
+
+要把用Swift编写的`NSManagedObject`子类用于Core Data的模型实体，你需要打开Xcode的模型实体检查面板，在Class文本框中输入类名，并从Module下拉列表中选择“Current Product Module”。
+
+![img](./pics/pic_2.2.png)
+
+使用Core Data类型
+----------------
+
+作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的使用Core Data类型的方法。
