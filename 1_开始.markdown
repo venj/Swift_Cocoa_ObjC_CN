@@ -20,14 +20,14 @@ Swift被设计成可以跟Cocoa和Objective-C无缝兼容。你可以在Swift中
 
 ### 在Xcode中创建一个Swift项目
 
-1. 选择 File > New > Project > (iOS或OS X) > Application > 选择一个模版。
+1. 选择 File > New > Project > (iOS, watchOS, tvOS或OS X) > Application > 选择一个模版。
 2. 点击 Language 弹出菜单，选择 Swift 。
 
 ![图1.1 项目模版](./pics/pic_1.1.png)
 
 Swift项目的结构与Objective-C的项目结构几乎完全一样，除了一个重要的区别：Swift没有头文件。Swift在接口和实现之间没有明确的界线，因此关于类的所有信息都包含在单独的`.swift`文件之中。
 
-现在，你就可以开始试着在app delegate里编写Swift代码了。你也可以通过选择 File > New > File > (iOS或OS X) > Source > Swift 创建一个新的Swift文件。
+现在，你就可以开始试着在app delegate里编写Swift代码了。你也可以通过选择 File > New > File > (iOS, watchOS, tvOS或OS X) > Source > Swift 创建一个新的Swift文件。
 
 > **提示**
 >

@@ -10,21 +10,40 @@
 
 ### 初始化
 
-要在Swift中初始化一个Objective-C的类，你可以用Swift的语法调用它的某个构造方法。在Swift中，"init"前缀被去除，变成了指示构造方法的一个关键词。对于以"initWith"开头的`init`方法，"With"也被去掉了。构造方法的方法名中，去掉了"init"或"initWith"之后的第一个词被小写后，被作为第一个参数的参数名。剩下的方法名片段也分别作为相应的参数名。所有的方法名片段都被包含进括号中，在调用方法时都是必须的。
+要在Swift中初始化一个Objective-C的类，你可以用Swift的语法调用它的某个构造方法。
 
-例如，在Objective-C中你会这么写：
+在Objective-C中，构造方法以`init`开头，如果构造方法接受一个或多个参数则是以`initWith:`开头。当一个Objective-C的构造方法被导入Swift中的时候，`init`前缀变为`init`关键词，用来指示这个方法是Swift的构造方法。如果构造方法需要接受参数，那么`With`会被去掉，方法选择器（selector）剩下的部分会分别作为构造方法的命名参数。
+
+比如下面的Objective-C构造方法声明：
+
+``` objc
+- (instancetype)init;
+- (instancetype)initWithFrame:(CGRect)frame
+						style:(UITableViewStyle)style;
+```
+
+下面是等效的Swift构造方法声明：
+
+``` swift
+init() { /* ... */ }
+init(frame: CGRect, style: UITableViewStyle) { /* ... */ }
+```
+
+Objective-C和Swift的语法的差别在初始化对象的时候就很明显了。
+
+在Objective-C中，你这么写：
 
 ``` objc
 UITableView *myTableView = ［[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
 ```
 
-这个语句在Swift中，是这么写的：
+在Swift中，是这么写的：
 
 ``` swift
 let myTableView : UITableView = UITableView(frame: CGRectZero, style: .Grouped)
 ```
 
-你无需单独调用`alloc`；Swift会帮你正确处理的。需要注意的是，在调用Swift风格的构造方法时，没有出现"init"。
+注意到，你无需单独调用`alloc`；Swift会帮你正确处理的。需要注意的是，在调用Swift风格的构造方法时，没有出现"init"。
 
 你可以在初始化的时候显示地声明对象的类型，你也可以省略类型声明。Swift的类型推断（Type Inference）功能可以正确的确定对象的类型。
 
@@ -33,6 +52,8 @@ let myTextField = UITextField(frame: CGRect(x: 0.0, y: 0.0, width: 200.0, height
 ```
 
 上述`UITableView`和`UITextField`对象有着你熟悉的与在Objective-C中的一样的功能。你可以像在Objective-C中一样使用它们，访问这些类的任何属性，调用任何方法。
+
+#### 类的工厂方法和快捷构造方法
 
 为了一致性和简单起见，Objective-C中的工厂方法在Swift中被映射为快捷构造方法（Convenient Initializer）。这样映射可以让它们像构造方法一样，使用同样易于理解的，简明的语法被调用。例如，在Objective-C中，你像这样调用工厂方法：
 
@@ -114,9 +135,9 @@ myTableView.layoutIfNeeded()
 
 ### id的兼容性
 
-Swift包含了一种称为`AnyObject`的协议类型（protocol type），可以代表任何类型的对象，就像Objective-C中的`id`一样。`AnyObject`协议使你能够在编写类型安全的Swift代码的同时，又不失去使用未指定类型的对象的弹性。因为Swift的AnyObject协议提供了额外的安全性，Swift会将`id`导入为`AnyObject`。
+Swift有一种`AnyObject`类型，用来代表某个对象。这种类型和Objective-C中的`id`类型很类似。Swift会把`id`导入为`AnyObject`，使你能够在编写类型安全的Swift代码的同时，又不失去使用未指定类型的对象的弹性。因为Swift的AnyObject协议提供了额外的安全性。
 
-例如，像`id`一样，你可以为类型为`AnyObject`的常量或变量赋任何类型的值。
+例如，像`id`一样，你可以为类型为`AnyObject`的常量或变量赋任何类型的值。你甚至可以在给变量重新赋值的时候，使用另一种类型的对象。
 
 ``` swift
 var myObject : AnyObject = UITableViewCell()
@@ -130,30 +151,46 @@ let futureDate = myObject.dateByAddingTimeInterval(10)
 let timeSinceNow = myObject.timeIntervalSinceNow
 ```
 
-不过，声明为`AnyObject`的对象的类型要到运行时才被确定，因此可能会导致你不经意地编写了不安全的代码。和Objective-C中一样，如果你对一个`AnyObject`类型的对象调用了一个不存在的方法或访问了不存在的属性，会导致一个运行时错误。例如，下面这行代码能够顺利编译通过，但是在运行时会产生不识别的方法（unrecognized selector）错误：
+#### 无法识别的方法选择器和可选调用链
+
+因为声明为`AnyObject`的对象的类型要到运行时才被确定，因此可能会导致你不经意地编写了不安全的代码。不论是在Swift中还是在Objective-C中，试图调用一个不存在的方法，会引发“无法识别的方法选择器”（unrecognized selector）错误。
+
+例如，下面这行代码能够顺利编译通过，但是在运行时会产生不识别的方法（unrecognized selector）错误：
 
 ``` swift
 myObject.charactorAtIndex(5)
 // 程序崩溃，myObject不能执行这个方法
 ```
 
-你可以利用Swift的可选类型来消除这类常见的Objective-C错误。当你对`AnyObject`对象调用Objective-C方法的时候，方法调用的行为实际上于隐式解包可选类型（implicit unwrapped optionals）差不多。你可以用像在调用协议中的可选方法时使用的可选调用链（Optional Chaining）一样，来对`AnyObject`对象可选地触发一个方法。
+Swift使用可选类型来应对这种不安全的行为。当你对`AnyObject`类型的值调用方法的时候，方法调用的行为与隐式解包可选类型（implicit unwrapped optionals）差不多。你可以用像在调用协议中的可选方法时使用的可选调用链（Optional Chaining）一样，来对`AnyObject`对象可选地触发一个方法。
 
 > **提示**
 >
-> 访问AnyObject类型的对象的属性，总是返回可选类型值。
+> 访问AnyObject类型的对象的属性，总是返回可选类型值。如果属性本来就是返回一个可选类型，那么它的返回值就回编程一个双重包装的可选类型（doubly-wrapped optional type），例如`AnyObject?!`。
 
 例如，在下面列出的代码中，第一行和第二行没有被执行，因为`count`属性和`characterAtIndex:`方法在`NSDate`对象中不存在。`myCount`常量被推断为可选`Int`类型，然后被赋值为`nil`。你也可以使用`if`-`let`语句来有条件地提取对象可能无法响应的方法的执行结果，就像第三行代码展示的那样。
 
 ``` swift
+// myObject是AnyObject类型，包含了一个NSDate值
 let myCount = myObject.count
+// myCount是Int?类型，值为nil
 let myChar = myObject.characterAtIndex?(5)
+// myChar是unichar?类型，值为nil
 if let fifthCharacter = myObject.characterAtIndex?(5) {
 	print("Found \(fifthCharacter) at Index 5")
 }
+// 条件分支没有被执行
 ```
 
-当你处理底层类型已知或者可以被合理推断出来的`AnyObject`对象的时候，我们通常会把对象向下转换为某个更加特定的类型。但是因为`AnyObject`可能代表任何类型的对象，类型转换并不能保证成功。你可以使用条件类型转换操作符（`as?`）来进行转换操作，用它将返回一个你尝试转换为的类型的可选类型：
+> **提示**
+>
+> 尽管Swift在对类型为`AnyObject`的值调用方法时，并不会要求强制解包，不过这是一种安全应对未知行为的途径之一。
+
+#### 类型向下强制转换
+
+当你处理底层类型已知或者可以被合理推断出来的`AnyObject`对象的时候，我们通常会把对象向下转换为某个更加特定的类型。但是因为`AnyObject`可能代表任何类型的对象，类型转换并不能保证成功。
+
+你可以使用条件类型转换操作符（`as?`）来进行转换操作，用它将返回一个你尝试转换为的类型的可选类型：
 
 ``` swift
 let userDefaults = NSUserDefaults.standardUserDefaults()
@@ -163,7 +200,7 @@ if let date = lastRefreshDate as? Date {
 }
 ```
 
-另外，你也可以使用强制向下转换操作符（`as!`），用它将返回一个你要转换成的类型的非可选的值：
+如果你确知对象的类型，你也可以使用强制向下转换操作符（`as!`）。
 
 ``` swift
 let myDate = lastReferenceDate as! NSDate
@@ -175,8 +212,6 @@ let timeInterval = myDate.timeIntervalSinceReferenceDate
 ``` swift
 let myDate = lastReferenceDate as! NSString // 错误
 ```
-
-正因为如此，你只应该在你可以确信`AnyObject`对象的底层类型时，才使用强制类型转换。
 
 ### 空值和可选类型
 
@@ -613,7 +648,7 @@ class Person : NSManagedObject {
 
 ![img](./pics/pic_2.2.png)
 
-使用Core Data类型
+使用Cocoa数据类型
 ----------------
 
-作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的使用Core Data类型的方法。
+作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的使用Cocoa数据类型的方法。
