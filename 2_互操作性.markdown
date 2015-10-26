@@ -735,3 +735,124 @@ var dates : [NSDate]
 func datesBeforeDate(date: NSDate) -> [NSDate]
 func addDatesParsedFromTimestamps(timestamps: [String])
 ```
+
+如果一个对象是Objective-C或Swift类的实例，或者可以被桥接到一个类，那么它就与`AnyObject`兼容。你可以桥接所有的`NSArray`对象到Swift的数组，因为所有的Objective-C对象都与`AnyObject`兼容。因为所有的`NSArray`对象都可以桥接到Swift的数组，所以Swift编译器在导入Objective-C的API时会把`NSArray`类替换为`[AnyObject]`。
+
+在你把`NSArray`对象桥接到Swift数组之后，你就可以把数组的类型转换成更加明确的类型。与把`NSArray`对象转换成`[AnyObject]`类型不同的是，把`AnyObject`向下转换成一个更加明确的类型并不能保证成功。在运行之前，编译器是无法确知数组的所有元素都能被转换成你所指定的类型的。因此，你需要使用条件类型转换操作符`as?`来将`[AnyObject]`向下转换为`[SomeType]`，在你确信转换可以成功时，也可以使用无条件类型转换操作符`as!`。例如，如果你知道Swift数组只包含`NSView`类（或`NSView`的子类）的实例，你就可以把包含`AnyObject`类型元素的数组向下转换成`NSView`对象数组了。如果在运行时，Swift数组中有任何一个元素不是`NSView`对象，类型转换的结果就回返回`nil`。
+
+``` swift
+let swiftArray = fundationArray as [AnyObject]
+if let downcastedArray = swiftArray as? [NSView] {
+	// downcastedArray只含有NSView对象的话，会执行到这里
+}
+```
+
+你也可以直接在for循环中，把`NSArray`对象转换成特定类型的Swift数组：
+
+``` swift
+for view in foundationArray as! [NSView] {
+	// view的类型为NSView
+}
+```
+
+当你把Swift的数组桥接到`NSArray`对象时，Swift数组的所有成员必须与`AnyObject`兼容。例如，一个类型为`[Int]`的Swift数组包含的时`Int`结构体元素。虽然`Int`类型并不是一个类的实例，但是`Int`类型可以被桥接至`NSNumber`类，因此`Int`类型依然与`AnyObject`兼容的。所以你可以把类型为`[Int]`的Swift数组桥接到`NSArray`对象。如果Swift数组的元素类型和`AnyObject`不兼容，那么当你把它桥接到`NSArray`对象时，会引起一个运行时错误。
+
+> **提示**
+>
+> 作为性能优化的一项措施，把一个集合无条件向下类型转换成另一个类型更加特殊的集合时，例如，`NSArray as! [String]`，数组成员的类型检查可能会被延迟到它们被访问的时候才会进行。因此，无条件类型转换为不兼容的类型可能会看起来成功了，直到元素的类型转换失败触发一个运行时错误。
+>
+> 把一个集合对象通过条件类型转换转成另一个类型更加特殊的集合时，例如，`NSArray as? [String]`，会立刻对所有的数组元素进行类型检查。如果有任何数组元素在进行类型转换时出错，就回返回`nil`。
+
+你也可以通过与前面提到的桥接规则相同的方式，直接用Swift的数组字面量创建一个`NSArray`对象。当你显式地把一个常量或变量指定为`NSArray`类型，并给它赋值一个数组字面量时，Swift会创建一个`NSArray`对象而不是Swift数组。
+
+``` swift
+let schoolSupplies : NSArray = ["Pencil", "Eraser", "Notebook"]
+// schoolSupplies是一个包含NSString对象的NSArray对象。
+```
+
+上例中，Swift的数组字面量包含了三个`String`字面量。因为`String`类型可以桥接至`NSString`类，所以数组字面量会被桥接至`NSArray`对象，对`schoolSupplies`的赋值就成功了。
+
+当你在Objective-C代码中使用Swift类或协议的时候，所有的Swift数组都会在导入的API中被替换为`NSArray`。如果你把一个`NSArray`对象传给一个接受不同类型元素的数组的Swift API时，就会引发一个运行时错误。如果Swift API返回的Swift数组不能被桥接至`NSArray`，也会引发运行时错误。
+
+#### 数集
+
+（译者注：Set通常会翻译为集合，但是这样翻译可能会和Collection(集合)混淆，因此我这里把Set翻译为数集。在程序语言中的数集的成员并不局限于数字，通常可以包含任何对象，与数组(array)类似的，请不要因为Set的翻译中包含“数”这个字而引起误会。）
+
+除了数组之外，Swift会自动把`Set`类型桥接为`NSSet`类。当你把参数化的`NSSet`对象桥接至Swift数集时，得到的数集对象的类型为`Set<ObjectType>`。如果`NSSet`对象没有参数化，它会被桥接到类型为`Set<NSObject>`（译者按：这里是否有误？是否应该为`Set<AnyObject>`？）的Swift数集。
+
+例如，下面这段Objective-C声明：
+
+``` objc
+@property NSSet<NSStirng *> *words;
+- (NSSet<NSString *> *)wordsMatchingPredicate:(NSPredicate *)predicate;
+- (void)removeWords:(NSSet<NSString *> *)words;
+```
+
+导入Swift之后是这样的：
+
+``` swift
+var words: Set<String>
+func wordsMatchingPredicate(predicate: NSPredicate) -> Set<String>
+func removeWords(words: Set<String>)
+```
+
+你可以把任意`NSSet`对象桥接至Swift数集，因为所有的Objective-C对象都可以被桥接至`AnyObject`。因为所有的`NSSet`对象都可以桥接至Swift数集，因此Swift编译器在导入Objective-C API的时候，会把`NSSet`类替换为`Set<AnyObject>`。类似的，当你在Objective-C代码中使用Swift类或协议的时候，Swift的数集对象会被重映射至`NSSet`对象。
+
+把`NSSet`对象桥接至Swift数集的之后，你可以把这个集合向下类型转换为一个更特殊的数集类型。和Swift数组的向下类型转换一样，Swift数集的向下类型转换并不保证成功，使用`as?`操作符把`Set<AnyObject>`向下转换为更特殊的类型时，会返回一个可选类型值。
+
+你也可以通过与前面提到的桥接规则相同的方式，用一个Swift数组字面量创建一个`NSSet`对象，当你显式地把一个常量或变量指定为`NSSet`类型，并给它赋值一个数组字面量时，Swift会创建一个`NSSet`对象而不是Swift数集。
+
+#### 字典
+
+Swift也会自动桥接`Dictionary`类型和`NSDictionary`类。当你把参数化的`NSDictionary`对象转换成一个Swift字典时，得到的字典的类型是`[ObjectType: AnyObject]`（译者按，原文为`[ObjectType]`，应该是错误的。）。如果`NSDictionary`对象没有参数化，那么它会被桥接至类型为`[NSObject: AnyObject]`的Swift字典类型。
+
+例如，下面这段Objective-C声明：
+
+``` objc
+@property NSDictionary<NSURL *, NSData *> *cachedData;
+- (NSDictionary<NSURL *, NSNumber *> *)fileSizesForURLsWithSuffix:(NSString *)suffix;
+- (void)setCacheExpirations:(NSDictionary<NSURL *, NSDate *>)expirations;
+```
+
+导入Swift之后是这样的：
+
+``` swift
+var cachedData: [NSURL: NSData]
+func fileSizesForURLsWithSuffix(suffix: String) -> [NSURL: NSNumber]
+func setCacheExpirations(expirations: [NSURL: NSDate])
+```
+你可以把人和`NSDictionary`对象桥接到Swift字典，因为所有的Objective-C对象都与`AnyObject`兼容。回忆一下，如果对象是Objective-C或Swift的类的实例，或可以被桥接到一个类，那么它就与`AnyObject`兼容。因为所有的`NSDictionary`对象可以被桥接到Swift字典，所以Swift编译器会在导入Objective-C API的时候把`NSDictionary`类替换为`[NSObject: AnyObject]`。类似的，当你在Objecitve-C代码中使用Swift的类或协议时，Swift字典会被重映射为`NSDictionary`对象。
+
+把`NSDictionary`对象桥接至Swift字典的之后，你可以把这个集合向下类型转换为一个更特殊的字典类型。和Swift数组和数集的向下类型转换一样，Swift字典的向下类型转换并不保证成功，使用`as?`操作符把`[NSObject: AnyObject]`向下转换为更特殊的类型时，会返回一个可选类型值。
+
+当你反向类型转换的时候--从Swift字典转换成`NSDictionary`对象--键和值必须都是类的实例，或者可以被桥接到某个类的实例。
+
+你也可以通过与前面提到的桥接规则相同的方式，用一个Swift字典字面量创建一个`NSDictionary`对象，当你显式地把一个常量或变量指定为`NSDictionary`类型，并给它赋值一个字典字面量时，Swift会创建一个`NSDictionary`对象而不是Swift字典。
+
+### 错误
+
+Swift自动把`ErrorType`桥接至`NSError`类。会发生错误的Objective-C方法，会被导入为可抛出异常的Swift方法，而能抛出异常的Swift方法，会遵循Objective-C的错误处理惯例，被导入为会发生错误的Objective-C方法。
+
+有`@objc`注解，并符合`ErrorType`协议的Swift枚举类型，会在生成的头文件中创建一个`NS_ENUM`声明以及错误领域（error domain）所对应的字符串常量。例如，下面这个Swift枚举类型声明：
+
+``` swift
+@objc public enum CustomError: Int, ErrorType {
+	case A, B, C
+}
+```
+
+在生成的头文件中会生成下述对应的Objective-C声明：
+
+``` objc
+// Project-Swift.h
+typedef Swift_ENUM(NSInteger, CustomError) {
+	CustomErrorA = 0,
+	CustomErrorB = 1,
+	CustomErrorC = 2,
+};
+static NSString * const CustomErrorDomain = @"Project.CustomError";
+```
+
+请参阅[错误处理](#错误处理)章节了解更多关于如何在Swift和Objective-C API中使用错误处理的信息。
+
+### Foundation数据类型
