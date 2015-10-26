@@ -652,3 +652,86 @@ class Person : NSManagedObject {
 ----------------
 
 作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的使用Cocoa数据类型的方法。
+
+Swift会自动把部分Objective-C的数据类型转换成Swift的数据类型，和部分Swift数据类型转换成Objective-C数据类型。有一部分数据类型在Swift和Objective-C中时可以通用的。可以转换或通用的数据类型，我们称之为*桥接*（bridged）类型例如，在Swift代码中，你可以把`Array`类型的值传给一个接受`NSArray`对象的方法。你也可以在桥接的类型之间进行类型转换。当你使用`as`或直接显式地指定常量或变量的类型在桥接的类型之间进行转换时，Swift会自动对类型进行桥接。
+
+Swift还为Foundation数据类型提供了快捷接口层，让这些数据类型的使用语法，感觉起来与Swift语言的其它部分更佳自然、一致的结合。
+
+### 字符串
+
+Swift会自动桥接`String`类型和`NSString`类。这意味着如果你在任何地方需要使用`NSString`，那么你也可以使用`String`类型替代，并且同时具有`String`类型的字符串变量插入（interpolation）功能和其它的Swift字符串API，以及`NS String`类提供的大量功能。因此，你几乎永远都不需要在你的Swift代码中直接使用`NSString`类。事实上，在Swift导入Objective-C的API时，会把所有的`NSString`类型替换为`String`类型。当你的Objective-C代码导入Swift类的时候，在导入的API中，所有的`String`类型都会被替换为`NSString`类型。
+
+要使用字符串桥接，你只需要导入Foundation模块。比如，你可以对Swift字符串访问`NSString`类的属性--`capitalizedString`，Swift会自动桥接`String`到`NSString`对象以访问这个属性。这个属性甚至会直接返回Swift的`String`类，因为它在导入的过程中已经进行了类型转换。
+
+``` swift
+import Foundation
+let greeting = "hello, world!"
+let capitalizedGreeting = greeting.capitalizedString
+// capitalizedString: String = Hello, World!
+```
+
+如果你确实需要使用`NSString`对象，你可以在需要的时候通过类型转换把它转成Swift的`String`类型值。因为`String`类型值随时都可以由`NSString`对象转换而成，因此在进行类型转换时无需使用可选类型转换操作符（`as?`）。你也可以通过为变量或常量显式地指定类型来用字符串字面量（string literal）创建一个`NSString`对象。
+
+``` swift
+import Foundation
+let myString : NSString = "123"
+if let integerValue = Int(myString as String) {
+	print("\(myString) is the integer \(integerValue)")
+}
+// 打印出"123 is the integer 123"
+```
+
+> **提示**
+>
+> Swift的`String`结构体类型的实例无法用`AnyObject`类型来表示，因为`AnyObject`只能用来代表类的实例。不过，当Foundation的桥接启用后，Swift的`String`值会被桥接到`NSString`类的实例，这样就可以被赋值给`AnyObject`类型的常量或变量了。
+
+#### 本地化
+
+在Objective-C中，通常使用`NSLocalizedString`系列的宏定义来创建本地化字符串的。这个系列的宏包括`NSLocalizedString`，`NSLicalizedStringFromTable`，`NSLocalizedStringFromTableInBundle`和`NSLocalizedStringWithDefaultValue`。在Swift中，你可以使用一个方法--`NSLocalizedString(key:tableName:bundle:value:comment:)`--来提供整个`NSLocalizedString`系列的宏的功能。`NSLocalizedString`为`tableName`，`bundle`和`value`参数提供了默认值。你可以在以前使用宏的地方使用这个方法。
+
+### 数字类型
+
+Swift会自动桥接原生的数字类型，例如`Int`和`Float`到`NSNumber`类型。这个桥接功能让你可以用这些类型创建`NSNumber`对象：
+
+``` swift
+let n = 42
+let m : NSNumber = n
+```
+
+这也允许你把`Int`类型值传给接受`NSNumber`对象作为参数的方法。需要注意的是，因为`NSNUmber`能够包含多种数字类型的对象，所以你不能把它传给接受某种特定的数字类型，比如`Int`值的方法。
+
+以下所有的类型都会自动桥接到`NSNumber`：
+
+- `Int`
+- `UInt`
+- `Float`
+- `Double`
+- `Bool`
+
+> **提示**
+>
+> Swift的数字结构体类型，比如`Int`，`UInt`，`Float`，`Double`和`Bool`的实例无法用`AnyObject`类型来表示，因为`AnyObject`只能用来代表类的实例。不过，当Foundation的桥接启用后，Swift的数字类型值会被桥接到`NSNumber`类的实例，这样就可以被赋值给`AnyObject`类型的常量或变量了。
+
+### 集合类
+
+Swift会分别把`NSArray`，`NSSet`和`NSDictionary`桥接到`Array`，`Set`和`Dictionary`类。这意味着你可以在利用Swift强大的算法的同时，用自然的语法来操作集合类，并能同时使用Foundation和Swift的集合类型。
+
+#### 数组
+
+Swift自动桥接`Array`和`NSArray`类。当你把参数化的`NSArray`对象桥接到Swift数组的时候，得到的数组的类型是`[ObjectType]`。如果`NSArray`对象没有参数化类型，它会桥接到类型为`[AnyObject]`的Swift数组。
+
+例如下面的这段Objective-C声明：
+
+``` objc
+@property NSArray<NSDate *> *dates;
+- (NSArray<NSDate *> *)datesBeforeDate:(NSDate *)date;
+- (void)addDatesParsedFromTimestamps:(NSArray<String *> *)timestamps;
+```
+
+Swift导入后会是下面这样：
+
+``` swift
+var dates : [NSDate]
+func datesBeforeDate(date: NSDate) -> [NSDate]
+func addDatesParsedFromTimestamps(timestamps: [String])
+```
