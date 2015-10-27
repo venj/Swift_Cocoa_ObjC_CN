@@ -935,3 +935,78 @@ let memoryManagedResult = StringByAddingTwoStrings(str1, str2).takeUnretainedVal
 
 使用Cocoa设计模式
 ----------------
+
+要编写设计优秀，适应性好的应用的一条准则是使用成熟的Cocoa设计模式。许多设计模式都依赖在Objective-C中定义的类。得益于Swift与Objective-C的互操作性，你可以在你的Swift代码中使用这些设计模式。而且在很多情况下，你可以使用Swift的语言特性来增强或简化已有的Cocoa设计模式，使它们更加强大且更加易用。
+
+### 委托
+
+（译者注：这里把delegation翻译成委托，如果你学过.NET，请不要与.NET的委托混淆，两者是完全不同的概念。）
+
+无论是在Swift还是Objective-C中，委托（delegation）通常是通过定义了交互方式的协议来表示的。类通过遵守协议来实现委托。在Objective-C中，在你向委托对象发送一个它可能无法响应的消息之前，你需要先询问委托对象是否可以响应这个方法选择器（selector）。在Swift中，你可以使用可选调用链来对可能为nil的对象，触发一个可选的协议方法，然后通过使用`if-let`语法来的到可能的返回结果。后面列出的代码展示了如下几个过程：
+
+1. 检查`myDelegate`是否不为`nil`。
+2. 检查`myDelegate`是否实现了`window:willUseFullScreenContentSize:`方法。
+3. 如果1和2都为真，那么调用这个方法并将结果赋值给`fullScreenSize`。
+4. 打印方法的返回值。
+
+``` swift
+class MyDelegate: NSObject, NSWindowDelegate {
+	func window(window: NSWindow, willUseFullScreenContentSize proposedSize: NSSize) -> NSSize {
+		return proposedSize
+	}
+}
+var myDelegate: NSWindowDelegate? = MyDelegate()
+if let fullScreenSize = myDelegate?.window?(myWindow, willUseFullScreenContentSize:mySize) {
+	print(NSStringFromSize(fullScreenSize))
+}
+```
+
+### 懒惰初始化
+
+一个*懒惰属性*（lazy property）是指其底层的值在首次访问的时候才倍初始化的属性。懒惰属性在属性的初始值需要复杂运算，或者需要进行大计算量地设置，或者是在实例初始化完成前无法确知的情况下非常有用。
+
+在Objective-C中，属性可以覆盖取值方法的默认实现，让属性对应的实例变量的值为`nil`的时候，才有条件地进行初始化：
+
+``` objc
+@property NSXMLDocument *XMLDocument;
+
+- (NSXMLDocument *)XMLDocument {
+	if (_XMLDocument == nil) {
+		_XMLDocument = [[NSXMLDocument alloc] initWithContentOfURL:[[NSBundle mainBundle] URLForResource:@"/path/to/resource" withExtension:@"xml"] options:0 error:nil];
+	}
+
+	return _XMLDocument;
+}
+```
+
+在Swift中，带有初始值的存储属性（stored property）可以使用`lazy`修饰符声明，以让计算初始值的表达式在属性首次访问的时候才进行计算：
+
+``` swift
+lazy var XMLDocument: NSXMLDocument = try! NSXMLDocument(contentOfURL:NSBundle.mainBundle().URLForResource("document", withExtension:"xml")!, options:0)
+```
+
+懒惰属性在初次访问时才进行计算，而此时实例已经初始化完成，因此默认的初始化表达式可以访问实例的常量或变量属性：
+
+``` swift
+var pattern: String
+lazy var regex: NSRegularExpression = try! NSRegularExpression(pattern: self.pattern, options:[])
+```
+
+对于需要在初始化之后需要进行额外设置步骤的值，你可以给属性赋一个能够自我执行的，可以返回完整初始化值的闭包作为默认初始值：
+
+``` swift
+lazy var ISO8601DateFormatter : NSDateFormatter = {
+	let formatter = NSDateFormatter()
+	formatter.localze = NSLocale(localeIdentifier: "en_US_POSIX")
+	formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+	return formatter
+}()
+```
+
+> **提示**
+>
+> 如果一个懒惰属性尚未被初始化，且同时被多个线程访问，那么程序并不保证属性只被初始化一次。
+
+要了解更多关于“懒惰存储属性”的信息，请查看Swift编程语言（Swift 2.1版）。
+
+### 错误处理
