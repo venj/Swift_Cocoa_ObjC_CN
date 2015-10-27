@@ -778,7 +778,7 @@ let schoolSupplies : NSArray = ["Pencil", "Eraser", "Notebook"]
 
 （译者注：Set通常会翻译为集合，但是这样翻译可能会和Collection(集合)混淆，因此我这里把Set翻译为数集。在程序语言中的数集的成员并不局限于数字，通常可以包含任何对象，与数组(array)类似的，请不要因为Set的翻译中包含“数”这个字而引起误会。）
 
-除了数组之外，Swift会自动把`Set`类型桥接为`NSSet`类。当你把参数化的`NSSet`对象桥接至Swift数集时，得到的数集对象的类型为`Set<ObjectType>`。如果`NSSet`对象没有参数化，它会被桥接到类型为`Set<NSObject>`（译者按：这里是否有误？是否应该为`Set<AnyObject>`？）的Swift数集。
+除了数组之外，Swift会自动把`Set`类型桥接为`NSSet`类。当你把参数化的`NSSet`对象桥接至Swift数集时，得到的数集对象的类型为`Set<ObjectType>`。如果`NSSet`对象没有参数化，它会被桥接到类型为`Set<NSObject>`（译者按：因为数集实际上声明为`Set<Element : Hashable>`，因为有了`Hashable`这个约束，所以映射的时候不是`AnyObject`，而是`NSObject`，这一点区别于数组。另外，此处与后文中有出入，但是译者认为，即便后文使用了`Set<AnyObject>`这种表示方式，这里的`AnyObject`也需要遵守`Hashable`协议）的Swift数集。
 
 例如，下面这段Objective-C声明：
 
@@ -856,3 +856,82 @@ static NSString * const CustomErrorDomain = @"Project.CustomError";
 请参阅[错误处理](#错误处理)章节了解更多关于如何在Swift和Objective-C API中使用错误处理的信息。
 
 ### Foundation数据类型
+
+Swift为在Foundation框架中定义的数据类型提供了一个快捷的封装接口。用这个封装层来操作`CGSize`和`CGPoint`的时候，语法感觉起来更加自然，与其它Swift代码更加一致。比如，你可以使用这种语法来创建`CGSize`结构体：
+
+``` swift
+let size = CGSize(width: 20, height: 40)
+```
+
+你也可以通过这个封装层自然地调用Foundation的函数和结构体。
+
+``` swift
+let rect = CGRect(x: 50, y: 50, width: 100, height: 100)
+let width = rect.width  // 等价于 CGRectGetWidth(rect)
+let maxY = rect.maxY    // 等价与 CGRectGetMaxY(rect)
+```
+
+Swift会把`NSUInteger`和`NSInteger`桥接至`Int`。在Foudation API中，这两种类型都被导入为`Int`。在Swift中，在所有可能的时候都会使用`Int`以保持一致性，不过`UInt`类型在某些一定要使用无符号整数类型的地方还是可用的。
+
+### Foundation函数
+
+`NSLog`在Swift中还是可以用来向控制台输出日志。你可以使用于Objective-C一样的语法来调用它。
+
+``` swift
+NSLog("%.7f", pi)
+// 把 "3.1415927" 输出到控制台
+```
+
+Swift自身也提供了一个打印函数`print(_:)`。这个函数支持Swift的字符串插入，所有用起来简单、强大而且通用。这个函数不会输出到系统控制台，但是可以满足常规的打印需求。
+
+`NSAssert`系列函数没有被引入Swift。取而代之的是`assert`函数。
+
+### Core Foundation
+
+Core Foundation类型会自动被导入为功能完备的Swift类。只要包含了内存管理的注解，Swift会自动管理Core Foundation对象的内存，包括你在代码中创建的Core Foundation对象。在Swift中，你可以互换使用Foundation和Core Foundation的无缝桥接(toll-free bridge)类型对。部分无缝桥接的Core Foundation类型，如果你先把它转换成Foundation类型，那么你还可以把它映射到Swift标准库中的类型。
+
+#### 重映射的类型
+
+当Swift导入Core Foundation类型时，编译器会对类型名进行重映射。编译器把*Ref*从名字的末尾去除了，因为所有的Swift类都是引用类型，因此这个词尾是多余的。
+
+Core Foundation的`CFTypeRef`类型则完全被重映射为`AnyObject`类型。在你的代码中，所有以前使用`CFTypeRef`的地方，现在都要使用`AnyObject`。
+
+#### 受内存管理的对象
+
+从包含内存管理注解的API中返回的Core Foundation对象，Swift会自动对它们进行内存管理--你不需要自己手动调用`CFRetain`，`CFRelease`或`CFAutoRelease`函数。
+
+如果你需要从你自己的C函数或Objective-C方法中返回Core Foundation对象，那么你就需要为它们添加`CF_RETURN_RETAINED`或`CF_RETURN_NOT_RETAINED`宏作为注解，以自动插入内存管理调用。你也可以根据Core Foundation的所属关系（ownership）策略，使用`CF_IMPLICIT_BRIDGING_ENABLED`和`CF_IMPLICIT_BRIDGING_DISABLED`宏来包围C函数声明，以通过命名方式来暗示内存管理机制。
+
+如果你只需要用到包含了内存管理注解，且不会间接返回Core Foundation对象的API的话，你可以跳过本节的其它部分。否则请继续阅读关于如何操作不受内存管理对象的内容。
+
+#### 不受管理的对象
+
+当Swift导入不包含内存管理注解的API时，编译器无法对返回的Core Foundation对象进行自动内存管理。Swift会把这些返回的Core Foundation对象封装进`Unmanaged<Instance>`结构体中。所有间接返回的Core Foundation对象也是不受内存管理的。比如，下面这个未注解的C函数：
+
+``` c
+CFStringRef StringByAddingTwoString(CFStringRef s1, CFStringRef s2)
+```
+
+Swift会这样导入它：
+
+``` swift
+func StringByAddingTwoString(_:CFString!, _:CFString!) -> Unmanaged<CFString>! {
+	// ...
+}
+```
+
+当你从一个无注解的API接收到一个不受内存管理的对象时，在操作它之前，你应该马上把它转换成一个受内存管理的对象。这样，Swift帮你进行内存管理。`Unmanaged<Instance>`结构体提供了两个把不受内存管理的对象转换成受内存管理的对象的方法--`takeUnretainedValue()`和`takeRetainedValue()`。这两个方法都会返回原始的、解包过的类型的对象。你需要根据调用的API返回的对象是否为保留（retain）过，来选择使用哪个方法。
+
+例如，假设上述C函数在返回之前没有保留（retain）过`CFString`对象。那么在操作这个对象之前，你需要使用`takeUnretainedValue()`方法。
+
+``` swift
+let memoryManagedResult = StringByAddingTwoStrings(str1, str2).takeUnretainedValue()
+// memoryManagedResult 是一个受内存管理的CFString对象。
+```
+
+你也可以对不受内存管理的对象调用`retain()`，`release()`和`autorelease()`方法，不过这种方式不受推荐。
+
+要了解更多信息，请参阅*Memory Management Programming Guide for Core Foundation*文档。
+
+使用Cocoa设计模式
+----------------
