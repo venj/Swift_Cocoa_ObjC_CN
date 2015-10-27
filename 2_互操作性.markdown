@@ -1010,3 +1010,156 @@ lazy var ISO8601DateFormatter : NSDateFormatter = {
 要了解更多关于“懒惰存储属性”的信息，请查看Swift编程语言（Swift 2.1版）。
 
 ### 错误处理
+
+在Cocoa中，可能产生错误的方法会把`NSError`指针作为方法的最后一个参数，发生错误的时候，这个指针会指向一个`NSError`对象。Swift会自动把可能产生错误的Objective-C方法转译成可以抛出一个错误的方法，以配合Swift的原生错误处理功能使用。
+
+> **提示**
+>
+> *处理*（consume）错误的方法，比如委托方法或接受一个包含`NSError`参数的完成代码快（completion handler）作为参数的方法，在导入Swift的时候不会被转译成可以抛出错误的方法。
+
+举个例子，请看下面来自`NSFileManager`类的Objective-C方法：
+
+``` objc
+- (BOOL)removeItemAtURL:(NSURL *)URL
+				  error:(NSError *)error;
+```
+
+导入Swift时会变成这样：
+
+``` swift
+func removeItemAtURL(URL:NSURL) throws
+```
+
+注意`removeItemAtURL(_:)`方法在导入Swift之后的返回类型变为`Void`，没有了`error`参数，但是包含了一个`throws`声明。
+
+如果Objective-C方法的最后一个非代码块参数的类型为`NSError **`，Swift就会把它替换为`throws`关键词，以指示这个方法能抛出一个错误。如果Objective-C方法的错误参数是第一个参数，Swift会试图通过删除方法选择器第一部分的`WithError`或`AndReturnError`词尾（如果存在的话）来进一步简化方法名。如果得到的方法名，已经被另一个方法所使用，那么这个方法名将不会改变。
+
+如果能产生错误的Objective-C方法返回一个`BOOL`值，用于指示方法调用的成败，Swift会把方法的返回值改为`Void`。类似的，如果能产生错误的Objective-C方法通过返回一个`nil`值用来指示方法调用失败，那么Swift会把方法的返回类型改为返回一个非可选的类型。
+
+否则，如果无法通过惯例来确定返回值，那么方法的返回值会保持原样。
+
+> **提示**
+>
+> 对Objective-C的方法声明使用`NS_SWIFT_NOTHROW`宏来创建`NSError`，以防止方法在导入Swift时变成抛出错误的方法。
+
+#### 捕捉和处理错误
+
+在Objective-C中，错误处理是可选的（opt-in），这意味着除非你传入了错误指针，否则方法调用产生的错误就会被忽略。在Swift中，调用抛出错误的方法时，必须进行显式的错误处理。
+
+下面这个例子展示了在Objective-C中是如何处理方法调用时产生的错误的：
+
+``` objc
+NSFileManager *fileManager = [NSFileManager defaultManager];
+NSURL *fromURL = [NSURL fileURLWithPath:@"/path/to/old"];
+NSURL *toURL = [NSURL fileURLWithPath:@"/path/to/new"];
+NSError *error = nil;
+BOOL success = [fileManager moveItemAtURL:fromURL toURL:toURL error:&error];
+if (!success) {
+	NSLog(@"Error: %@", error.domain);
+}
+```
+
+下面是Swift中的等效代码：
+
+``` swift
+let fileManager = NSFileManager.defaultManager()
+let fromURL = NSURL(fileURLWithPath:"/path/to/old")
+let toURL = NSURL(fileURLWithPath:"/path/to/new")
+do {
+	try fileManager.moveItem(fromURL, toURL: toURL)
+} catch let error as NSError {
+	print("Error: \(error.domain)")
+}
+```
+
+另外，你可以使用`catch`语句来匹配特定的错误代码，来区分不同的错误情况：
+
+``` swift
+do {
+	try fileManager.moveItemAtURL(fromURL, toURL: toURL)
+} catch NSCocoaError.FileNoSuchFileError {
+	print("Error: no such file exists")
+} catch NSCocoaError.FileReadUnsupportedSchemeError {
+	print("Error: unsupported scheme (should be 'file://')")
+}
+```
+
+#### 把错误转换成可选类型值
+
+在Objective-C中，如果你只关心错误是否发生，而不关心发生的是什么错误，你可以传`NULL`给错误参数。在Swift中，你可以使用`try?`把一个抛出错误的表达式转换成一个返回可选类型值的方法，你可以随后检查返回值是否为`nil`。
+
+例如，`NSFileManager`的实例方法：`URLForDirectory(_:inDomain:appropriateForURL:create:)`，返回一个位于特定搜索路径和文件域（domain）下的URL，或者如果合适的URL不存在且无法创建，则产生一个错误。在Objective-C中，方法调用的成败可以通过检查返回值是否为一个`NSURL`对象来确定。
+
+``` objc
+NSFileManager *fileManager = [NSFileManager defaultManager];
+NSURL *tmpURL = [fileManager URLForDirectory:NSCachesDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:NULL];
+
+if (tmpURL != nil) {
+	// ...
+}
+```
+
+你可以使用如下Swift代码实现相同功能：
+
+``` swift
+let fileManager = NSFileManager.defaultManager()
+if let tmpURL = try? fileManager.URLForDirectory(.CachesDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: true) {
+	// ...
+}
+```
+
+#### 抛出错误
+
+如果Objective-C方法中产生了错误，改方法的错误指针就回指向这个错误：
+
+``` objc
+// 错误发生时
+if (errorPtr) {
+	*errorPtr = [NSError errorWithDomain:NSURLErrorDomain
+									code:NSURLErrorCannotOpenFile
+								userInfo:nil];
+}
+```
+
+如果在Swift方法中发生了错误，这个错误就回被抛出，并自动传递给调用者：
+
+``` swift
+// 错误发生时
+throw NSError(domain: NSURLErrorDomain, code:NSURLErrorCannotOpenFile, userInfo:nil)
+```
+
+如果Objective-C代码调用了一个抛出错误的Swift方法，错误会自动传递给Objective-C桥接方法的错误指针参数。
+
+例如，`NSDocument`类的`readFromFileWrapper(_:ofType:)`方法。在Objective-C中，这个方法的最后一个参数的类型时`NSError **`。当你在Swift中创建`NSDocument`的子类，覆盖这个方法时，方法会自动替换错误参数，并用抛出代替。
+
+``` swift
+class SerializedDocument : NSDocument {
+	static let ErrorDomain = "com.example.error.serialized-document"
+
+	var representedObject: [String: AnyObject] = [:]
+
+	override func readFromFileWrapper(fileWrapper:NSFileWrapper, ofType typeName: String) throws {
+		guard let data = fileWrapper.regularFileContents else {
+			throw NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotOpenFile, userInfo:nil)
+		}
+
+		if case let JSON as [String : AnyObject] = try NSJSONSerialization.JSONObjectWithData(data, options: []) {
+			self.representedObject = JSON
+		} else {
+			throw NSError(domain: SerializedDocument.ErrorDomain, code: -1, userInfo: nil)
+		}
+	}
+}
+```
+
+如果方法无法使用文档的文件内容创建一个对象，它会抛出一个`NSError`对象。如果方法是在Swift代码中调用的，错误会被传递给它的调用作用于。如果方法是在Objective-C代码中调用的，错误就回传递给错误指针参数。
+
+（译者按：原文中这段文字于本节开头第一段重复，这里不再翻译）
+
+> **提示**
+>
+> 尽管Swift的错误处理于Objective-C的异常处理类似，但是这两个是完全不同的功能。如果Objective-C方法在运行时抛出异常Swift会触发一个运行时错误。在Swift中是无法直接从Objective-C的异常中恢复的。所有的异常都必须在Swift调用的Objective-C代码实现中处理。
+
+（译者按：Swift和Objective-C的错误（error）类似于其他语言（例如Java，C#，Ruby，Python等）的异常，而Objective-C的异常（exception）则类似于其他语言的运行时错误。）
+
+### 键值观察
