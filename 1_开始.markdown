@@ -1,8 +1,6 @@
-开始
-====
+# 开始
 
-基本设置
--------
+## 基本设置
 
 Swift被设计成可以跟Cocoa和Objective-C无缝兼容。你可以在Swift中使用Objective-C的API（无论是系统框架，还是你自己的代码），你也可以在Objective-C中使用Swift的API。这种兼容性使得Swift一个可以整合进你的Cocoa应用开发工作流种的，简单、方便并且强大的工具。
 

@@ -1,10 +1,8 @@
-互操作性
-=======
+# 互操作性
 
-与Objective-C API交互
---------------------
+## 与Objective-C API交互
 
-*互操作性*能让Swift与Objective-C双向互为接口，使你能够在一种语言中访问和使用另一种语言编写的代码。当你开始把Swift整合进开发工作流，先理解如何利用互操作性来改善、改进和增强编写Cocoa应用是个好主意。
+*互操作性*能让Swift与Objective-C双向互为接口，使你能够在一种语言中访问和使用另一种语言编写的代码。在开始把Swift整合进开发工作流之前，先理解如何利用互操作性来改善、改进和增强Cocoa应用的开发方式是个好主意。
 
 关于互操作性的一个重要的方面是如何在你编写Swift代码时如何使用Objective-C的API。在导入Objective-C框架后，你可以用原生的Swift语法初始化类，并与之交互。
 
@@ -487,8 +485,7 @@ array.performSelector(invalidSelector) // 引发一个异常
 
 在Objective-C运行时向对象直接发送消息在本质上是不安全的，因为编译器无法对发送消息得到的结果作保证，甚至无法保证对象可以接收某个消息。因此，通常是不鼓励使用`performSelector` API的，除非你的代码对Objective-C运行时提供的动态方法解析有特殊需求。否则，把一个类型的对象转换成`AnyObject`，然后使用可选调用链来调用方法会安全很多。详见[id的兼容性](#id的兼容性)。
 
-编写具备Objective-C行为的Swift类
-------------------------------
+## 编写具备Objective-C行为的Swift类
 
 互操作性是你能够定义具备Objective-C行为的Swift类。你可以在编写Swift类的时候继承Objective-C的类，接受Objective-C的协议，并利用其他Objective-C的功能。这意味着你可以创建基于你熟悉的、有着明确Objective-C行为的类创建子类，同时，你可以使用Swift的现代、强大的语言特征来增强它。
 
@@ -648,8 +645,7 @@ class Person : NSManagedObject {
 
 ![img](./pics/pic_2.2.png)
 
-使用Cocoa数据类型
-----------------
+## 使用Cocoa数据类型
 
 作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的使用Cocoa数据类型的方法。
 
@@ -933,8 +929,7 @@ let memoryManagedResult = StringByAddingTwoStrings(str1, str2).takeUnretainedVal
 
 要了解更多信息，请参阅*Memory Management Programming Guide for Core Foundation*文档。
 
-使用Cocoa设计模式
-----------------
+## 使用Cocoa设计模式
 
 要编写设计优秀，适应性好的应用的一条准则是使用成熟的Cocoa设计模式。许多设计模式都依赖在Objective-C中定义的类。得益于Swift与Objective-C的互操作性，你可以在你的Swift代码中使用这些设计模式。而且在很多情况下，你可以使用Swift的语言特性来增强或简化已有的Cocoa设计模式，使它们更加强大且更加易用。
 
@@ -1629,5 +1624,4 @@ for argument in Process.arguments {
 >
 > `Process.arguments`的第一个元素总是可执行文件的路径。启动时指定的命令行参数是从`Process.arguments[1]`开始的。
 
-与C语言API交互
-----------
+## 与C语言API交互

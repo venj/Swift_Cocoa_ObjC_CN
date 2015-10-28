@@ -8,6 +8,20 @@ Swift编程语言的翻译的坑才开发，现在又来挖这个新坑，给自
 
 在翻译完成前请尽量**不要**提交勘误的PR。
 
+## 生成HTML文档
+
+* 注意：文档翻译尚未完成。 *
+
+``` bash
+# 安装工具
+$ brew install node
+$ npm install -g markdown-styles
+
+# 生成文档
+$ (可选) rm -rf doc # 如果当前文件夹存在doc文件夹，先删除它
+$ generate-md --layout github --input . --output doc
+```
+
 ### 提示
 
 - 本项目基本上**100%**会烂尾，所以请不要将本项目作为主要阅读材料。
