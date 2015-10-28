@@ -1625,3 +1625,136 @@ for argument in Process.arguments {
 > `Process.arguments`的第一个元素总是可执行文件的路径。启动时指定的命令行参数是从`Process.arguments[1]`开始的。
 
 ## 与C语言API交互
+
+作为与Objective-C互操作性的一部分，Swift保持了与C语言的部分类型和特性的兼容性。Swift还提供了操作常见的C语言结构和模式的方法，以便你在编码时需要用到它。
+
+### 基本类型
+
+Swift提供了与C语言基本整数类型--比如，`char`，`int`，`float`，和`double`的等价类型。不过这些类型不会通过隐式转换转成Swift的整形，如`Int`。因此，只有在你的代码对这些类型有特殊需求时才使用它们，否则，请总是使用`Int`。
+
+<table>
+	<th><td>C类型</td><td>Swift类型</td></th>
+	<tr>bool<td></td><td>CBool</td></tr>
+	<tr><td>char, signed char</td><td>CChar</td></tr>
+	<tr><td>unsigned char</td><td>CUnsignedChar</td></tr>
+	<tr><td>short</td><td>CShort</td></tr>
+	<tr><td>unsigned short</td><td>CUnsignedShort</td></tr>
+	<tr><td>int</td><td>CInt</td></tr>
+	<tr><td>unsigned int</td><td>CUnsignedInt</td></tr>
+	<tr><td>long</td><td>CLong</td></tr>
+	<tr><td>unsigned long</td><td>CUnsignedLong</td></tr>
+	<tr><td>long long</td><td>CLongLong</td></tr>
+	<tr><td>unsigned long long</td><td>CUnsignedLongLong</td></tr>
+	<tr><td>wchar_t</td><td>CWideChar</td></tr>
+	<tr><td>char16_t</td><td>CChar16</td></tr>
+	<tr><td>char32_t</td><td>CChar32</td></tr>
+	<tr><td>float</td><td>CFloat</td></tr>
+	<tr><td>double</td><td>CDouble</td></tr>
+</table>
+
+### 枚举类型
+
+Swift会把用`NS_ENUM`宏创建的C枚举类型导入为以`Int`作为其原始值类型的Swift的枚举类型。不管是在系统框架还是在自定义代码中创建的枚举，C枚举类型的成员名的前缀在导入Swift的时候会被移除。
+
+例如，下面这个枚举类型是用`NS_ENUM`声明的C枚举。
+
+``` objc
+typedef NS_ENUM(NSInteger, UITableViewCellStyle) {
+	UITableViewCellStyleDefault,
+	UITableViewCellStyleValue1,
+	UITableViewCellStyleValue2,
+	UITableViewCellStyleSubtitle
+};
+```
+
+Swift会把它导入成这样：
+
+``` swift
+enum UITableViewCellStyle: Int {
+	case Default
+	case Value1
+	case Value2
+	case Subtitle
+}
+```
+
+当你使用枚举值的时候，你在值的名字前加上一个点（`.`）
+
+``` swift
+let cellStyle: UITableViewCellStyle = .Default
+```
+
+不是用NS_ENUM或NS_OPTIONS宏标记的C的枚举类型会被Swift导入为结构体。C枚举的每个成员都被导入为一个类型为结构体的全局只读计算属性--不是成为Swift结构体本身的成员。
+
+例如，下面这个C枚举不是用`NS_ENUM`宏声明的。
+
+``` c
+typedef enum Error {
+	ErrorNone = 0,
+	ErrorFileNotFound = -1,
+	ErrorInvalidFormat = -2,
+};
+```
+
+Swift会把它导入成这样：
+
+``` swift
+struct Error: RawRepresentable, Equatable {
+}
+
+var ErrorNone: Error { get }
+var ErrorFileNotFound: Error { get }
+var ErrorInvalidFormat: Error { get }
+```
+
+Swift会为导入的C结构体类型自动生成遵守`Equatable`协议的实现代码。
+
+### 选项集
+
+Swift也会把用`NS_OPTIONS`宏标记的C语言枚举类型，导入为Swift的选项集（option set）。选项集会与枚举类型一样，导入后会移除选项值名字中的前缀。
+
+比如，下面这个Objective-C选项声明：
+
+``` objc
+typedef NSOPTIONS(NSUInteger, NSJSONReadingOptions) {
+	NSJSONReadingOptionsMutableContainers = (1UL << 0),
+	NSJSONReadingOptionsMutableLeaves = (1UL << 1),
+	NSJSONReadingOptionsAllowFragments = (1UL << 2)
+};
+```
+
+Swift会把它导入成这样：
+
+``` swift
+struct NSJSONReadingOptions : OptionSetType {
+	init(rawValue: UInt)
+
+	static var MutableContainers : NSJSONReadingOptions { get }
+	static var MutableLeaves : NSJSONReadingOptions { get }
+	static var AllowFragments : NSJSONReadingOptions { get }
+}
+```
+
+在Objective-C中，选项集是一个位掩码的整数值。你使用按位或（bitwise OR）操作符（`|`）来组合选项值，用按位与（bitwise AND）操作符（`&`）来检查选项值。你可以用一个常量或表达式创建一个新的选项集，空的选项集用常数零（`0`）来表示。
+
+在Swift中，选项集用遵守`OptionalSetType`协议的结构体表示，选项用静态成员表示。选项集的行为与Swift的`Set`集合类型类似。你可以使用`insert(_:)`或`unionInPlace(_:)`方法添加选项值，使用`remove(_:)`或`substractInPlace(_:)`方法移除选项值，使用`contains(_:)`方法检查选项值。你可以使用一个数组字面量创建一个选项集，使用类似枚举类型的点（`.`）前缀来访问选项值。空的选项值可以用一个空的数组字面量（`[]`），或默认构造方法创建。
+
+``` swift
+let options: NSDataBase64EncodingOptions = [
+	.Encoding76CharacterLineLength,
+	.EncodingEndLineWithLineFeed
+]
+let string = data.base64EncodedStringWithOptions(options)
+```
+
+### 联合体
+
+Swift仅部分支持C语言的`union`类型。当导入包含联合体的C的聚合数据类型（C aggregates）是，Swift是无法访问不受支持的字段的。不过如果C或Objective-C API的参数或返回值包含联合体类型，那么它们是可以在Swift中使用的。
+
+（译者按：C aggregates翻译为聚合数据类型是参考了[维基百科](https://zh.wikipedia.org/wiki/结构体_(C语言))）
+
+### 位域
+
+Swift把结构体的位域，比如Foundation框架的`NSDecimal`类型中能找到的那些，导入为计算属性。当访问对应某个位域的计算属性时，Swift会自动把该值与兼容的Swift类型互相转换。
+
+### 指针
