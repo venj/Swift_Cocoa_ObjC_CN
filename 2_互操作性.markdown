@@ -1633,23 +1633,23 @@ for argument in Process.arguments {
 Swift提供了与C语言基本整数类型--比如，`char`，`int`，`float`，和`double`的等价类型。不过这些类型不会通过隐式转换转成Swift的整形，如`Int`。因此，只有在你的代码对这些类型有特殊需求时才使用它们，否则，请总是使用`Int`。
 
 <table>
-	<tr><td>**C类型**</td><td>**Swift类型**</td></tr>
-	<tr><td>`bool`</td><td>`CBool`</td></tr>
-	<tr><td>`char`, `signed char`</td><td>`CChar`</td></tr>
-	<tr><td>`unsigned char`</td><td>`CUnsignedChar`</td></tr>
-	<tr><td>`short`</td><td>`CShort`</td></tr>
-	<tr><td>`unsigned short`</td><td>`CUnsignedShort`</td></tr>
-	<tr><td>`int`</td><td>`CInt`</td></tr>
-	<tr><td>`unsigned int`</td><td>`CUnsignedInt`</td></tr>
-	<tr><td>`long`</td><td>`CLong`</td></tr>
-	<tr><td>`unsigned long`</td><td>`CUnsignedLong`</td></tr>
-	<tr><td>`long long`</td><td>`CLongLong`</td></tr>
-	<tr><td>`unsigned long long`</td><td>`CUnsignedLongLong`</td></tr>
-	<tr><td>`wchar_t`</td><td>`CWideChar`</td></tr>
-	<tr><td>`char16_t`</td><td>`CChar16`</td></tr>
-	<tr><td>`char32_t`</td><td>`CChar32`</td></tr>
-	<tr><td>`float`</td><td>`CFloat`</td></tr>
-	<tr><td>`double`</td><td>`CDouble`</td></tr>
+	<tr><td><strong>C类型</strong></td><td><strong>Swift类型</strong></td></tr>
+	<tr><td><code>bool</code></td><td><code>CBool</code></td></tr>
+	<tr><td><code>char</code>, <code>signed char</code></td><td><code>CChar</code></td></tr>
+	<tr><td><code>unsigned char</code></td><td><code>CUnsignedChar</code></td></tr>
+	<tr><td><code>short</code></td><td><code>CShort</code></td></tr>
+	<tr><td><code>unsigned short</code></td><td><code>CUnsignedShort</code></td></tr>
+	<tr><td><code>int</code></td><td><code>CInt</code></td></tr>
+	<tr><td><code>unsigned int</code></td><td><code>CUnsignedInt</code></td></tr>
+	<tr><td><code>long</code></td><td><code>CLong</code></td></tr>
+	<tr><td><code>unsigned long</code></td><td><code>CUnsignedLong</code></td></tr>
+	<tr><td><code>long long</code></td><td><code>CLongLong</code></td></tr>
+	<tr><td><code>unsigned long long</code></td><td><code>CUnsignedLongLong</code></td></tr>
+	<tr><td><code>wchar_t</code></td><td><code>CWideChar</code></td></tr>
+	<tr><td><code>char16_t</code></td><td><code>CChar16</code></td></tr>
+	<tr><td><code>char32_t</code></td><td><code>CChar32</code></td></tr>
+	<tr><td><code>float</code></td><td><code>CFloat</code></td></tr>
+	<tr><td><code>double</code></td><td><code>CDouble</code></td></tr>
 </table>
 
 ### 枚举类型
@@ -1758,3 +1758,273 @@ Swift仅部分支持C语言的`union`类型。当导入包含联合体的C的聚
 Swift把结构体的位域，比如Foundation框架的`NSDecimal`类型中能找到的那些，导入为计算属性。当访问对应某个位域的计算属性时，Swift会自动把该值与兼容的Swift类型互相转换。
 
 ### 指针
+
+只要有可能，Swift就会避免让你直接使用指针。不过，如果你确实需要直接访问内存，那么你还是有很多指针类型可以使用的。下面的几个表格使用`Type`作为类型名的占位符，用来展示指针类型的映射语法。
+
+对于返回类型、变量和参数中的指针，应用如下映射规则：
+
+<table>
+	<td><strong>C语法</strong></td><td><strong>Swift语法</strong></td>
+	<tr><td><code>const Type *</code></td><td><code>UnsafePointer&lt;Type&gt;</code></td></tr>
+	<tr><td><code>Type *</code></td><td><code>UnsafeMutablePointer&lt;Type&gt;</code></td></tr>
+</table>
+
+对于类的指针，应用如下映射规则：
+
+<table>
+	<td><strong>C语法</strong></td><td><strong>Swift语法</strong></td>
+	<tr><td><code>Type * const *</code></td><td><code>UnsafePointer&lt;Type&gt;</code></td></tr>
+	<tr><td><code>Type * __strong *</code></td><td><code>UnsafeMutablePointer&lt;Type&gt;</code></td></tr>
+	<tr><td><code>Type **</code></td><td><code>AutoreleasingUnsafeMutablePointer&lt;Type&gt;</code></td></tr>
+</table>
+
+#### 常指针
+
+当函数声明了接受一个`UnsafePointer<Type>`参数时，它可以接受下面这几种类型的参数：
+
+- `nil`，传入一个空指针。
+- `UnsafePointer<Type>`，`UnsafeMutablePointer<Type>`，或`AutoreleasingUnsafeMutablePointer<Type>`值，在必要的时候会转换成`UnsafePointer<Type>`。
+- `String`值，如果`Type`是`Int8`或`UInt8`，字符串会自动转换成UTF8编码，保存到缓存中，直到调用结束。
+- 左手侧操作数的类型为`Type`的`inout`表达式，会传入左手侧标识符的地址。
+- `[Type]`值，会传入数组开始位置的指针，数组的生命周期被延长至整个调用的周期。
+
+假设你声明了如下函数：
+
+``` swift
+func takeAPointer(x:UnsafePointer<Float>) {
+	// ...
+}
+```
+
+你可以通过下面几种方式来调用它：
+
+``` swift
+var x: Float = 0.0
+var p: UnsafePointer<Float> = nil
+takeAPointer(nil)
+takeAPointer(p)
+takeAPointer(&x)
+takeAPointer([1.0, 2.0, 3.0])
+```
+
+当函数声明了接受一个`UnsafePointer<Void>`参数，它可以接受与`UnsafePointer<Type>`相同的操作数，`Type`可以是任何类型。
+
+假设你声明了如下函数：
+
+``` swift
+func takeAVoidPointer(x:UnsafePointer<Void>) {
+	// ...
+}
+```
+
+你可以通过下面几种方式来调用它：
+
+``` swift
+var x: Float = 0.0, y: Int = 0
+var p: UnsafePointer<Float> = nil, q: UnsafePointer<Int> = nil
+takeAVoidPointer(nil)
+takeAVoidPointer(p)
+takeAVoidPointer(q)
+takeAVoidPointer(&x)
+takeAVoidPointer(&y)
+takeAVoidPointer([1.0, 2.0, 3.0] as [Float])
+let intArray = [1, 2, 3]
+takeAVoidPointer(intArray)
+```
+
+#### 可变指针
+
+当函数声明了接受一个`UnsafeMutablePointer<Type>`参数时，它可以接受下面这几种类型的参数：
+
+- `nil`，传入一个空指针。
+- `UnsafeMutablePointer<Type>`值。
+- 左值的类型为`Type`的`inout`表达式，会传入左值的地址。
+- `inout [Type]`值，会传入数组开始位置的指针，数组的生命周期被延长至整个调用的周期。
+
+假设你声明了如下函数：
+
+``` swift
+func takeAMutablePointer(x:UnsafeMutablePointer<Float>) {
+	// ...
+}
+```
+
+你可以通过下面几种方式来调用它：
+
+``` swift
+var x: Float = 0.0
+var p: UnsafeMutablePointer<Float> = nil
+var a: [Float] = [1.0, 2.0, 3.0]
+takeAPointer(nil)
+takeAPointer(p)
+takeAPointer(&x)
+takeAPointer(&a)
+```
+
+当函数声明了接受一个`UnsafeMutablePointer<Void>`参数，它可以接受与`UnsafeMutablePointer<Type>`相同的操作数，`Type`可以是任何类型。
+
+假设你声明了如下函数：
+
+``` swift
+func takeAMutableVoidPointer(x:UnsafeMutablePointer<Void>) {
+	// ...
+}
+```
+
+你可以通过下面几种方式来调用它：
+
+``` swift
+var x: Float = 0.0, y: Int = 0
+var p: UnsafeMutablePointer<Float> = nil, q: UnsafeMutablePointer<Int> = nil
+var a: [Float] = [1.0, 2.0, 3.0], b: [Int] = [1, 2, 3]
+takeAMutableVoidPointer(nil)
+takeAMutableVoidPointer(p)
+takeAMutableVoidPointer(q)
+takeAMutableVoidPointer(&x)
+takeAMutableVoidPointer(&y)
+takeAMutableVoidPointer(&a)
+takeAMutableVoidPointer(&b)
+```
+
+#### 自动释放指针
+
+当函数声明了接受一个`AutoreleasingUnsafeMutablePointer<Type>`参数时，它可以接受下面这几种类型的参数：
+
+- `nil`，传入一个空指针。
+- AutoreleasingUnsafeMutablePointer<Type>`值。
+- `inout`表达式，其操作数会通过基础拷贝到一个临时的不拥有的（nonowning）缓存区。缓存区的地址接着传给被调用者，返回时，缓存区内的值被加载、保留（retain）并重新赋值给操作数。
+
+注意，上面的列表中不包含数组。
+
+假设你声明了如下函数：
+
+``` swift
+func takeAnAutoreleasingUnsafeMutalbePointer(x:AutoreleasingUnsafeMutalbePointer<NSDate?>) {
+	// ...
+}
+```
+
+你可以通过下面几种方式来调用它：
+
+``` swift
+var x: NSDate? = nil
+var p: AutoreleasingUnsafeMutalbePointer<NSDate?> = nil
+takeAPointer(nil)
+takeAPointer(p)
+takeAPointer(&x)
+```
+
+被指向的类型不会被桥接。例如，`NSString **`导入Swift的时候，是`AutoreleasingUnsafeMutalbePointer<NSString?>`，不是`AutoreleasingUnsafeMutalbePointer<String?>`。
+
+#### 函数指针
+
+C函数指针会作为闭包导入Swift，闭包遵循C函数指针的调用惯例，并以`@convention(c)`注解标记。例如，一个类型为`int(*)(void)`的C函数指针导入Swift后成为`@convention(c) () -> Int32`。
+
+当调用接受函数指针作为参数的函数时，你可以传一个顶层（top-level）的Swift函数，一个闭包字面量或nil。以Core Foundation的`CFArrayCreateMutable(_:_:_:)`函数作为例子，`CFArrayCreateMutable(_:_:_:)`接受一个`CFArrayCallBacks`结构体，这个结构体在初始化时需要函数指针用于回调：
+
+``` swift
+func customCopyDescription(p: UnsafePointer<Void>) -> Unmanaged<CFString>! {
+	// 返回一个Unmanaged<CFString>!值
+}
+
+var callbacks = CFArrayCallBacks(
+	version: 0,
+	retain: nil,
+	release: nil,
+	copyDescription: customCopyDescription,
+	equal: { (p1, p2) -> DarwinBoolean in
+		// 返回Bool值
+	}
+)
+
+var mutableArray = CFArrayCreateMutable(nil, 0, &callbacks)
+```
+
+上面这个例子中，`CFArrayCallBacks`构造方法用`nil`作为`retain`和`release`参数，`customCopyDescription`函数作为`copyDescription`参数，一个闭包字面量作为`equal`参数。
+
+### 数据类型大小计算
+
+在C语言中，`sizeof`操作符可以返回任何变量和数据类型的大小。在Swift中，你可以使用`sizeof`函数来获取给定类型的大小，或者`sizeofValue`函数来获取给定值的大小。不过和C的`sizeof`操作符不同的是，Swift的`sizeof`和`sizeofValue`函数不包含内存对齐必需的内存衬底（padding）。例如，Darwin中的`timeval`结构体，在C语言中得到的大小是16字节，在Swift中得到的大小是12字节：
+
+``` swift
+print(sizeof(timeval))
+// 打印 “12”
+```
+
+要获得计算了数据结构内存对齐，与C语言的`sizeof`操作符的输出一致的值，你可以使用`strideof`或`strideofValue`函数替代：
+
+``` swift
+print(strideof(timeval))
+// 打印 “16”
+```
+
+例如，`setsockopt`函数能接受`timeval`值的指针和大小作为参数，用作作套接字（socket）接收超时选项（SO_RCVTIMEO），这里的大小值就是通过`strideof`来计算的：
+
+``` swift
+let socketfd = socket(AF_INET, SOCK_STREAM, 0)
+let optval = timeval(tv_sec: 30, tv_usec: 0)
+let optlen = socklen_t(strideof(timeval))
+if setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &optval, optlen) == 0 {
+	// ...
+}
+```
+
+> **提示**
+>
+> 只有符合C函数引用调用惯例的Swift函数能被用作函数指针参数。与C的函数指针一样，有`@convention(c)`注解的Swift函数类型不会捕获周围作用域的上下文环境。
+>
+> 要了解更多信息，请参阅“Swift编程语言（Swift 2.1版）”的“类型参数”章节。
+
+### 全局常量
+
+在C和Objective-C源码中定义的全局常量会被Swift编译器自动导入为Swift的全局常量。
+
+### 预处理指令
+
+Swift编译器不包含与处理器。作为替代，它能利用编译时（compile-time）参数，构建配置（build configuration）和语言特性来实现相同的功能。因此预处理指令并不会导入Swift。
+
+#### 简单的宏
+
+在C和Objective-C中，用`#define`指令创建一个基本常量的地方，在Swift中，你可以通过定义全局常量来代替。例如，这个常量定义：`#define FADE_ANIMATION_DURATION 0.35`，在Swift中用`let FADE_ANIMATION_DURATION = 0.35`来表示。因为简单的类似常量的宏定义在Swift中会直接映射为全局变量，编译器会自动导入C和Objective-C源码中的简单的宏定义。
+
+#### 复杂的宏
+
+C和Objective-C中使用的复杂的宏，在Swift中没有对应的概念。复杂的宏不是定义常量的宏，包括：参数化的宏、类似函数的宏。在C和Objective-C中使用复杂宏一般是为了避开类型检查的约束，或者是为了避免重复输入大量的模板（boilerplate）代码。然而宏会让除错和重构变得更加困难。在Swift中，你可以使用函数和泛型来达到同样的效果，而且不会产生副作用（without any compromises）。因此，C和Objective-C中的复杂宏在Swift代码中是不可用的。
+
+#### 构建配置
+
+Swift代码和Objective-C代码通过不同的手段进行条件编译。Swift代码可以基于对*构建配置*的评估来实现条件编译。构建配置包含`true`和`false`字面值，命令行编译参数，以及下表中的这些平台检测函数。你还可以在命令行中使用`-D <#flag#>`来设定编译参数。
+
+<table>
+	<tr><td><strong>函数</strong></td><td><strong>可用的参数</strong></td></tr>
+	<tr><td><code>os()</code></td><td><code>OSX</code>,<code>iOS</code>,<code>watchOS</code>,<code>tvOS</code></td></tr>
+	<tr><td><code>arch()</code></td><td><code>x86_64</code>,<code>arm</code>,<code>arm64</code>,<code>i386</code></td></tr>
+</table>
+
+> **提示**
+>
+> `arch(arm)`编译配置在ARM 64设备上不会返回`true`。`arch(i386)`编译配置在代码为32位的iOS模拟器编译时返回`true`。
+
+一个简单的条件编译语句形式如下：
+
+``` swift
+#if <#编译配置#>
+<#语句#>
+#else
+<#语句#>
+#endif
+```
+
+其中*语句*部分包含零条或更多条的合法Swift语句，可以包含表达式、一般语句和控制流语句。你可以使用`&&`和`||`操作符为一个条件编译语句增加额外的构建配置；用`!`操作符来对构建配置取反；用`#elseif`来增加一个条件语句块：
+
+``` swift
+#if <#编译配置#> && !<#编译配置#>
+<#语句#>
+#elseif <#编译配置#> 
+<#语句#>
+#else
+<#语句#>
+#endif
+```
+
+与C语言预处理起的条件编译指令不同的是，条件编译语句包围的代码块必需是自包含的，而且在语法上是合法的。这是因为所有的Swift代码都会经过语法检查，甚至是那些不会被编译的代码。
