@@ -6,6 +6,14 @@
 
 **暂时请不要提交勘误的PR。** 在我对初稿较对完成后，我就可以接受PR了。谢谢配合。
 
+## 开始阅读
+
+[开始阅读](https://www.venj.me/usco/0_目录.html)
+
+## 获取源码
+
+[获取源码](https://github.com/venj/Swift_Cocoa_ObjC_CN)
+
 ## 生成HTML文档
 
 *注意：文档尚未较对*
