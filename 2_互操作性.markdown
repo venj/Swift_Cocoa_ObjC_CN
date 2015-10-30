@@ -2,15 +2,15 @@
 
 ## 与Objective-C API交互
 
-*互操作性*能让Swift与Objective-C双向互为接口，使你能够在一种语言中访问和使用另一种语言编写的代码。在开始把Swift整合进开发工作流之前，先理解如何利用互操作性来改善、改进和增强Cocoa应用的开发方式是个好主意。
+*互操作性*让Swift与Objective-C双向互为接口的能力，使你能在一种语言中访问并使用另一个文件中用另一种语言编写的代码。在开始把Swift整合进开发工作流之前，先理解如何利用互操作性来改善、改进和增强Cocoa应用的开发方式是个好主意。
 
-关于互操作性的一个重要的方面是如何在你编写Swift代码时如何使用Objective-C的API。在导入Objective-C框架后，你可以用原生的Swift语法初始化类，并与之交互。
+关于互操作性的一个重要的方面是它能让你在编写Swift代码时使用Objective-C的API。导入Objective-C框架之后，你就可以用原生的Swift语法初始化其中的类并与之交互。
 
 ### 初始化
 
 要在Swift中初始化一个Objective-C的类，你可以用Swift的语法调用它的某个构造方法。
 
-在Objective-C中，构造方法以`init`开头，如果构造方法接受一个或多个参数则是以`initWith:`开头。当一个Objective-C的构造方法被导入Swift中的时候，`init`前缀变为`init`关键词，用来指示这个方法是Swift的构造方法。如果构造方法需要接受参数，那么`With`会被去掉，方法选择器（selector）剩下的部分会分别作为构造方法的命名参数。
+Objective-C的构造方法以`init`开头，如果构造方法接受一个或多个参数则是以`initWith:`开头。当Objective-C的构造方法被导入Swift的时候，`init`前缀变为`init`关键词，表示此方法是Swift的构造方法。如果构造方法接受参数，那么`With`会被去掉，方法选择器（selector）的其他部分会被分开成为相应的命名参数。
 
 比如下面的Objective-C构造方法声明：
 
@@ -27,7 +27,7 @@ init() { /* ... */ }
 init(frame: CGRect, style: UITableViewStyle) { /* ... */ }
 ```
 
-Objective-C和Swift的语法的差别在初始化对象的时候就很明显了。
+Objective-C和Swift的语法差别在初始化对象时就很明显了。
 
 在Objective-C中，你这么写：
 
@@ -35,31 +35,33 @@ Objective-C和Swift的语法的差别在初始化对象的时候就很明显了�
 UITableView *myTableView = ［[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
 ```
 
-在Swift中，是这么写的：
+在Swift中，你这么写：
 
 ``` swift
 let myTableView : UITableView = UITableView(frame: CGRectZero, style: .Grouped)
 ```
 
-注意到，你无需单独调用`alloc`；Swift会帮你正确处理的。需要注意的是，在调用Swift风格的构造方法时，没有出现"init"。
+注意，你无需调用`alloc`；Swift会帮你正确处理。另外需要注意的是，在调用Swift风格的构造方法时，任何位置都没有出现“init”。
 
-你可以在初始化的时候显示地声明对象的类型，你也可以省略类型声明。Swift的类型推断（Type Inference）功能可以正确的确定对象的类型。
+你可以在为常量或变量赋值的时候，显示的指定类型；你也可以省略类型声明，让Swift根据构造方法推断（infer）出类型。
 
 ``` swift
 let myTextField = UITextField(frame: CGRect(x: 0.0, y: 0.0, width: 200.0, height: 40.0))
 ```
 
-上述`UITableView`和`UITextField`对象有着你熟悉的与在Objective-C中的一样的功能。你可以像在Objective-C中一样使用它们，访问这些类的任何属性，调用任何方法。
+`UITableView`和`UITextField`对象与你在Objective-C中初始化的对象是一样的。你可以像在Objective-C中一样使用它们，访问相应的类中定义的的任何属性，调用任何方法。
 
 #### 类的工厂方法和快捷构造方法
 
-为了一致性和简单起见，Objective-C中的工厂方法在Swift中被映射为快捷构造方法（Convenient Initializer）。这样映射可以让它们像构造方法一样，使用同样易于理解的，简明的语法被调用。例如，在Objective-C中，你像这样调用工厂方法：
+为了一致性和简便性，Objective-C类的工厂方法以快捷构造方法（convenient initializer）的形式导入Swift。你能用与构造方法相同的语法调用它们。
+
+例如，在Objective-C中，你像这样调用这个工厂方法：
 
 ``` objc
 UIColor *color = [UIColor colorWithRed: 0.5 green: 0.0 blue: 0.5 alpha: 1.0];
 ```
 
-在Swift中，你可以这样调用：
+在Swift中，你像这样调用它：
 
 ``` swift
 let color = UIColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0)
@@ -67,11 +69,11 @@ let color = UIColor(red: 0.5, green: 0.0, blue: 0.5, alpha: 1.0)
 
 ### 可失败构造方法
 
-在Objective-C中，构造方法直接返回它们初始化的对象。要在初始化失败的时候告知调用者，Objective-C的构造方法会返回`nil`。在Swift中，这种模式成为一种语言特性，称为“*可失败构造方法（failable initializer）*”。
+在Objective-C中，构造方法直接返回它们初始化的对象。要在初始化失败时告知调用者，Objective-C的构造方法会返回`nil`。在Swift中，这个模式成为一种语言特性，叫做“*可失败构造方法*”（failable initializer）。
 
-iOS和OS X的系统框架中的很多Objective-C构造方法已经被修改为可以指示初始化是否会失败。你也可以在你自己的Objective-C类中使用*可空性标记（nullability annotions）*指示构造方法是否会初始化失败，详见[空值和可选类型](#空值和可选类型)。根据是否会初始化失败，Objective-C的构造方法会被导入为`init(...)`--如果不会初始化失败，或者`init?(...)`--如果可能会初始化失败。否则，Objective-C的构造方法会被导入为`init!(...)`。
+系统框架中的很多Objective-C构造方法已经被修改为可以指示初始化是否会失败。你也可以在你自己的Objective-C类中使用在[空值和可选类型](#空值和可选类型)章节中介绍的*可空性标记*（nullability annotions）指示构造方法是否会初始化失败。根据构造方法是否会初始化失败的指示，Objective-C的构造方法会被导入为`init(...)`--如果不会初始化失败，或者`init?(...)`--如果可能会初始化失败。否则，Objective-C的构造方法会被导入为`init!(...)`。
 
-例如，`UIImage(contentOfFile:)`构造方法在初始化`UIImage`对象的时候，在给定的路径下图片文件不存在时，就会初始化失败。你可以使用可选类型绑定（Optional Binding）来提取可失败构造方法在初始化成功后的结果。
+例如，`UIImage(contentOfFile:)`构造方法在初始化`UIImage`对象的时候，如果给定的路径下图片文件不存在，就会初始化失败。你可以使用可选类型绑定（optional binding）在初始化成功时提取可失败构造方法的结果。
 
 ``` swift
 if let image = UIImage(contentOfFile: "MyImage.png") {
@@ -83,18 +85,18 @@ if let image = UIImage(contentOfFile: "MyImage.png") {
 
 ### 访问属性
 
-Objective-C中，使用`@property`语法来声明属性，在Swift中通过如下方法被导入：
+用`@property`语法声明的Objective-C属性，以如下几种方式导入为Swift属性：
 
-- 包含空值指示参数（`nonnull`，`nullable`和`null_resettable`）的属性，在导入为Swift属性的时候会导入为对应的可选类型或非可选类型，详见[空值和可选类型](#空值和可选类型)。
-- 包含`readonly`(只读)参数的属性，在Swift中被导入为只包含取值方法（gette）(`{getter}`)的计算属性（computed property）。
-- 包含`weak`（弱）参数的属性，在导入为Swift属性时也会使用`weak`关键词标注（`weak var`）。
-- 包含除`weak`外的其他所属关系参数（也就是`assign`，`copy`，`strong`或`unsafe_unretained`）的属性在导入为Swift属性的时候，会被正确的存储。
-- 包含原子性参数（`atomic`和`nonatomic`）的属性在Swift中被忽略。所有的Swift属性都是`nonatomic`的。
+- 包含空值指示参数（`nonnull`，`nullable`和`null_resettable`）的属性，被导入为对应的可选类型或非可选类型的Swift属性，详见[空值和可选类型](#空值和可选类型)。
+- 包含`readonly`(只读)参数的属性，被导入为只包含取值方法（gette）(`{getter}`)的Swift计算属性（computed property）。
+- 包含`weak`（弱）参数的属性，被导入为用`weak`关键词标注（`weak var`）的Swift属性。
+- 包含除`weak`外的其他所属关系参数（也就是`assign`，`copy`，`strong`或`unsafe_unretained`）的属性，被导入为适当存储的Swift属性。
+- 属性的原子性参数（`atomic`和`nonatomic`）不会反映在Swift参数中。但当导入的属性在Swift中访问时，Objective-C实现中保证的原子性会被保留。
 - 属性的访问方法（accessor）参数（`getter=`和`setter=`）在Swift中被忽略。
 
-在Swift中访问Objective-C对象的属性使用点语法（dot syntax），属性名保持不变，后面无需括号。
+在Swift中访问Objective-C对象的属性使用点语法（dot syntax），属性名后面无需加括号。
 
-例如，你可以用如下代码为`UITextField`对象设置`textColor`和`text`属性：
+例如，你可以用如下代码为`UITextField`对象的`textColor`和`text`属性赋值：
 
 ``` swift
 myTextField.textColor = UIColor.darkGrayColor()
@@ -103,29 +105,29 @@ myTextField.text = "Hello world"
 
 > **提示**
 >
-> `darkGrayColor()`的后面是包含括号的，因为`darkGrayColor()`是`UIColor`类的一个方法，不是一个属性。
+> `darkGrayColor()`的后面是包含括号的，因为`darkGrayColor()`是`UIColor`的类方法，不是一个属性。
 
-Objective-C中，不包含参数，但是有返回值的方法可以像Objective-C属性一样用点语法调用。但是这些方法是作为实例方法导入Swift的，只有使用`@property`声明的Objective-C属性才会被导入为Swift属性。方法的导入和调用在[方法的使用](#方法的使用)部分介绍。
+Objective-C中，不包含参数，但是有返回值的方法可以像Objective-C属性一样用点语法调用。但是这些方法是作为实例方法导入Swift的，只有使用`@property`声明的Objective-C属性才会被导入为Swift属性。方法的导入和调用在[方法的使用](#方法的使用)章节介绍。
 
 ### 方法的使用
 
-从Swift中调用Objective-C方法时，使用点语法。
+你可以使用点语法在Swift中调用Objective-C方法。
 
-当Objective-C方法导入Swift之后，Objective-C方法名（selector）的第一部分变成Swift的方法名，出现在括号外面。第一个参数紧随开括号出现，是没有参数名的。方法名的其他部分分别作为对应命名参数出现在括号中。在调用时，所有的参数都是必须的。
+当Objective-C方法导入Swift之后，Objective-C方法选择器（selector）的第一部分变成Swift的方法名，出现在括号外面。第一个参数紧随开括号出现，是没有参数名的。方法选择器的其他部分分别作为对应命名参数出现在括号中。在调用时，所有的参数都是必须的。
 
-例如，在Objective-C中，你会这样编写代码：
+例如，在Objective-C中这样的代码：
 
 ``` objc
 [myTableView insertSubview: mySubview atIndexPath: 2];
 ```
 
-在Swift中，你这么写：
+在Swift中，是这样的：
 
 ``` swift
 myTableView.insertSubview(mySubView, atIndexPath: 2)
 ```
 
-如果你调用的方法没有参数，你依然需要在最后包含一个空括号。
+即使你调用的方法没有参数，你依然需要在最后包含一个空括号。
 
 ``` swift
 myTableView.layoutIfNeeded()
@@ -133,16 +135,18 @@ myTableView.layoutIfNeeded()
 
 ### id的兼容性
 
-Swift有一种`AnyObject`类型，用来代表某个对象。这种类型和Objective-C中的`id`类型很类似。Swift会把`id`导入为`AnyObject`，使你能够在编写类型安全的Swift代码的同时，又不失去使用未指定类型的对象的弹性。因为Swift的AnyObject协议提供了额外的安全性。
+Swift有一种`AnyObject`类型，用来代表某个对象。它和Objective-C中的`id`类型很相似。Swift把`id`导入为`AnyObject`，使你能够在编写类型安全的Swift代码的同时，保留不确定类型对象（untyped object）的灵活性。
 
-例如，像`id`一样，你可以为类型为`AnyObject`的常量或变量赋任何类型的值。你甚至可以在给变量重新赋值的时候，使用另一种类型的对象。
+例如，像`id`一样，你可以为`AnyObject`类型的常量或变量赋任何类型的值。你还可以为变量重新赋一个另一种类型值。
 
 ``` swift
 var myObject : AnyObject = UITableViewCell()
 myObject = NSDate()
 ```
 
-你也可以无需强制类型转化，就能调用任何Objective-C方法，访问任何属性。包括使用`@objc`注解（attribute）的Objective-C的兼容方法。
+你也可以无需进行类型转化，就能对`AnyObject`类型的值调用任何Objective-C方法，访问任何属性。包括使用`@objc`注解（attribute）的兼容Objective-C的方法。
+
+（译者按：本书中的annotation都被翻译成注解。Swift和Objective-C的注解与Java的注解看起来有点类似，但是区别也非常大，请注意分别。另外，在适当的时候，部分名字以`@`开头的attributes也被翻译成注解。）
 
 ``` swift
 let futureDate = myObject.dateByAddingTimeInterval(10)
@@ -151,9 +155,9 @@ let timeSinceNow = myObject.timeIntervalSinceNow
 
 #### 无法识别的方法选择器和可选调用链
 
-因为声明为`AnyObject`的对象的类型要到运行时才被确定，因此可能会导致你不经意地编写了不安全的代码。不论是在Swift中还是在Objective-C中，试图调用一个不存在的方法，会引发“无法识别的方法选择器”（unrecognized selector）错误。
+因为声明为`AnyObject`的对象的类型要到运行时才被确定，所以可能会导致你不经意地编写了不安全的代码。不论是在Swift中还是在Objective-C中，试图调用一个不存在的方法，都会触发“无法识别的方法选择器”（unrecognized selector）错误。
 
-例如，下面这行代码能够顺利编译通过，但是在运行时会产生不识别的方法（unrecognized selector）错误：
+例如，下面这行代码能够顺利编译通过，但是在运行时会触发“无法识别的方法选择器”（unrecognized selector）错误：
 
 ``` swift
 myObject.charactorAtIndex(5)
@@ -164,7 +168,7 @@ Swift使用可选类型来应对这种不安全的行为。当你对`AnyObject`�
 
 > **提示**
 >
-> 访问AnyObject类型的对象的属性，总是返回可选类型值。如果属性本来就是返回一个可选类型，那么它的返回值就回编程一个双重包装的可选类型（doubly-wrapped optional type），例如`AnyObject?!`。
+> 访问`AnyObject`对象的属性，总是返回可选类型值。如果属性本来就是返回一个可选类型，那么它的返回值就回编程一个双重包装的可选类型（doubly-wrapped optional type），例如`AnyObject?!`。
 
 例如，在下面列出的代码中，第一行和第二行没有被执行，因为`count`属性和`characterAtIndex:`方法在`NSDate`对象中不存在。`myCount`常量被推断为可选`Int`类型，然后被赋值为`nil`。你也可以使用`if`-`let`语句来有条件地提取对象可能无法响应的方法的执行结果，就像第三行代码展示的那样。
 
@@ -182,13 +186,13 @@ if let fifthCharacter = myObject.characterAtIndex?(5) {
 
 > **提示**
 >
-> 尽管Swift在对类型为`AnyObject`的值调用方法时，并不会要求强制解包，不过这是一种安全应对未知行为的途径之一。
+> 尽管Swift在对类型为`AnyObject`的值调用方法时，并不会要求强制解包，不过这是安全应对未知行为的途径之一。
 
-#### 类型向下强制转换
+#### AnyObject向下类型转换
 
-当你处理底层类型已知或者可以被合理推断出来的`AnyObject`对象的时候，我们通常会把对象向下转换为某个更加特定的类型。但是因为`AnyObject`可能代表任何类型的对象，类型转换并不能保证成功。
+当`AnyObject`对象的底层类型已经知道，或可以被推断出来时，我们通常会把它向下转换为更加特定的类型。但是因为`AnyObject`可能代表任何类型的对象，类型转换并不能保证成功。
 
-你可以使用条件类型转换操作符（`as?`）来进行转换操作，用它将返回一个你尝试转换为的类型的可选类型：
+你可以使用条件类型转换操作符（`as?`）来进行转换操作。它将返回目标类型的可选值（optional value）：
 
 ``` swift
 let userDefaults = NSUserDefaults.standardUserDefaults()
@@ -198,7 +202,7 @@ if let date = lastRefreshDate as? Date {
 }
 ```
 
-如果你确知对象的类型，你也可以使用强制向下转换操作符（`as!`）。
+如果你确知对象的类型，你也可以使用强制类型转换操作符（`as!`）。
 
 ``` swift
 let myDate = lastReferenceDate as! NSDate
@@ -215,12 +219,12 @@ let myDate = lastReferenceDate as! NSString // 错误
 
 （译者注：nullability这里翻译为空值，主要是为了不发明大家看不懂的新词。nullability的直译的话，意为“可否为空值的一种能力”。后文中nullbility将不会使用直译，我会根据上下文环境尽量避免晦涩，多用意译。）
 
-在Objective-C中，你使用原生的指针来操作可能为`NULL`(在Objective-C中被称为`nil`)的引用。在Swift中，所有的值--包括结构体和对象引用--总是为非空的。取而代之，你需要将可能为空的值封装到一个可选类型（optional type）中。当你需要指示值为空的时候，你可以使用nil。要了解更多关于可选类型的信息，你可以参阅*Swift编程语言（Swift 2版）*的可选类型章节。
+在Objective-C中，你使用原生的指针来操作可能为`NULL`(在Objective-C中被称为`nil`)的引用。在Swift中，所有的值--包括结构体和对象的引用--总是为非空的。取而代之，你需要将可能为空的值封装到一个可选类型（optional type）中。当你需要表示值不存在的时候，你可以使用`nil`。要了解更多关于可选类型的信息，你可以参阅“Swift编程语言（Swift 2.1版）”的“可选类型”章节。
 
-Objective-C可以使用空值标记（nullability annotation）来标示参数、属性或返回值能否包含`NULL`或`nil`。单独的类型声明可以使用`_Nullable`和`_Nonnull`标记，单独的属性声明可以使用`nullable`，`nonnull`和`null_resettable`标记，或者你也可以使用`NS_ASSUME_NONNULL_BEGIN`和`NS_ASSUME_NONNULL_END`宏来标记一整块区域接受和返回非空值。如果类型没有空值标记信息，Swift就无法区分可选和非可选的引用了，它们将被作为隐式解包可选类型被导入。
+Objective-C可以使用空值标记（nullability annotation）来标识参数、属性或返回值能否包含`NULL`或`nil`。单独的类型声明可以使用`_Nullable`和`_Nonnull`标记，单独的属性声明可以使用`nullable`，`nonnull`和`null_resettable`标记，或者你也可以使用`NS_ASSUME_NONNULL_BEGIN`和`NS_ASSUME_NONNULL_END`宏把一段代码标记成不为空（nonnull）。如果类型没有空值标记信息，Swift就无法区分可选和非可选的引用了，它们将被作为隐式解包可选类型（implicit unwrapped optional）被导入。
 
-- 无论是用`_Nonnull`标记或者包围在非空宏被声明为不为空的类型，作为非可选类型导入Swift。
-- 使用`_Nullable`标记为可为空的类型，作为可选类型导入Swift。
+- 无论是用`_Nonnull`标记或者包围在非空宏被声明为不为空的类型，都作为非可选类型导入Swift。
+- 使用`_Nullable`标记为可空（nullable）的类型，作为可选类型导入Swift。
 - 没有使用空值标记的类型，作为隐式解包可选类型导入Swift。
 
 例如，来看看的这段Objective-C声明：
@@ -259,6 +263,8 @@ func returnsUnannotatedValue() -> AnyObject!
 func takesUnannotatedParameter(value: AnyObject!)
 ```
 
+大部分Objective-C系统框架，包括Foundation，都已经包含了空值标记，你可以用习惯的方法安全地处理各类值。
+
 ### 轻量级泛型
 
 Objective-C中，使用轻量级泛型进行参数化的声明的`NSArray`，``NSSet`和`NSDictionary`类型，在导入Swift的时候，参数的类型信息会被保留。
@@ -285,7 +291,7 @@ var cachedData : [NSURL : NSData]
 
 ### 扩展
 
-Swift的扩展(Extension)与Objective-C的扩展（Category）类似。*扩展*可以为已有的类、结构体和枚举，甚至是那些在Objective-C中定义的类型，增加新的行为。无论是系统框架中定义的类，还是你自己的自定义类型，你都可以为它们定义扩展。你只需导入适当的模块，用类、结构体或枚举的名字来使用它们，就像在Objective-C中一样。
+Swift的扩展(Extension)与Objective-C的扩展（Category）类似。*扩展*可以为已有的类、结构体和枚举，甚至是那些在Objective-C中定义的类型，增加新的行为。无论是系统框架中定义的类，还是自定义类型，你都可以为它们定义扩展。你只需导入适当的模块，用类、结构体或枚举的名字来使用它们，就像在Objective-C中一样。
 
 比如，你可以像下面这样扩展`UIBezierPath`类，利用边长和起始点来创建一个简单的等边三角形贝塞尔曲线。
 
@@ -303,7 +309,7 @@ extension UIBezierPath {
 }
 ```
 
-你也可以使用扩展增加属性（包括类属性和静态属性）。不过这些属性必须为计算属性；扩展无法为类、结构体或枚举增加带存储的属性。
+你也可以使用扩展增加属性（包括类属性和静态属性）。不过这些属性必须是计算属性；扩展无法为类、结构体或枚举增加带存储的属性。
 
 下面这个扩展的例子展示了如何为`CGRect`结构体增加一个计算属性`area`：
 
@@ -324,7 +330,7 @@ let area = rect.area
 
 ### 闭包
 
-用`@convention(block)`注解标记的Objective-C的块（block）在导入为Swift闭包时，使用Objective-C的调用规则。例如，下面的这个Objective-C的块变量：
+用`@convention(block)`注解标记的Objective-C的块（block）在导入为Swift闭包时，使用Objective-C的调用惯例。例如，下面的这个Objective-C的块变量：
 
 ``` objc
 void (^completionBlock)(NSData *, NSError *) = ^(NSData *data, NSError *error) {
@@ -340,7 +346,7 @@ let completionBlock: (NSData, NSError) -> Void = { (data, error) in
 }
 ```
 
-Swift的闭包与Objective-C的块是兼容的，你可以为接受块参数的Objective-C方法传一个Swift的闭包。如果Swift的闭包和函数有相同的类型签名，你甚至可以直接传一个Swift函数名。
+Swift的闭包与Objective-C的块是兼容的，你可以给接受块参数的Objective-C方法传一个Swift的闭包。如果Swift的闭包和函数有相同的类型签名，你甚至可以直接传一个Swift函数名。
 
 闭包与块有着相似的值捕获语义（capture semantics），但是有一个关键的地方不一样：变量是可以被更改的，而不是被复制的。换句话说，Objective-C中，需要使用`__block`标记的变量的行为，在Swift中是默认行为。
 
@@ -366,15 +372,15 @@ self.closure = ^{ [unowned self] in
 }
 ```
 
-要了解更多信息，请参考*Swift编程语言（Swift 2版）*的“解决闭包的强引用循环”章节。
+要了解更多信息，请参考“Swift编程语言（Swift 2.1版）”的“解决闭包的强引用循环”章节。
 
 ### 对象比较
 
-在比较两个对象的时候，Swift中有两种不同的比较方法。第一种，是*相等*（`==`），比较两个对象的内容。第二种，是*相同（`===`）*，比较常量或变量指向的对象是否为同一个对象实例。
+在比较两个对象的时候，Swift中有两种不同的比较方法。第一种，是*相等*（`==`），比较的是两个对象的内容。第二种，是*相同（`===`）*，比较的是常量或变量对象是否为同一个实例。
 
-在Swift中，Swift和Objective-C的对象通常使用`==`和`===`操作符进行比较。Swift为派生自`NSObject`类的对象提供了一个默认的`==`操作符实现。这个操作符的视线中，Swift会触发`NSObject`类中定义的的`isEqual:`方法。`NSObject`类只会比较两者是否为同一个对象，因此，如果你的类派生自`NSObject`，你需要实现你自己的`isEqual:`方法。因为你向Objective-C的API传入Swift对象（包括那些不是派生自`NSObject`的对象），因此，如果你希望Swift类在Objective-C的API中也是比较内容，而不是比较是否相同，你也应该为那些类实现`isEqual:`方法。
+在Swift中，Swift和Objective-C的对象通常使用`==`和`===`操作符进行比较。Swift为派生自`NSObject`类的对象提供了一个默认的`==`操作符实现。这个操作符的实现中，Swift会触发`NSObject`类中定义的的`isEqual:`方法。`NSObject`类只会比较两者是否为同一个对象，因此，如果你的类派生自`NSObject`，你需要实现你自己的`isEqual:`方法。因为你能向Objective-C的API传递Swift对象（包括那些不是派生自`NSObject`的对象），所以如果你希望Swift类在Objective-C的API中也是比较内容，而不是比较身份（identity），你也应该为那些类实现`isEqual:`方法。
 
-作为显现类的相等性的一部分，根据对相比较的规则，请确保实现`hash`属性。另外，如果你希望你的类可以用作字典的键，请遵守`Hashable`协议，并实现`hashValue`属性。
+作为类的相等性实现的一部分，根据对象比较的规则，请确保实现`hash`属性。另外，如果你希望你的类可以用作字典的键，请遵守`Hashable`协议，并实现`hashValue`属性。
 
 ### Swift类型的兼容性
 
@@ -394,15 +400,15 @@ self.closure = ^{ [unowned self] in
 
 如果你的类派生自Objective-C类，编译器会自动为你插入注解。编译器也会为标记有`@objc`注解的类的所有成员加上注解。当你使用`@IBOutlet`，`@IBAction`，或`@NSManaged`注解时，也会自动加上`@objc`注解。
 
-需要注意的是，只有派生自`NSObject`的类才能用`@objc`整体标记（编译器会自动标记），但是，如果类并不是派生自`NSObject`，你依然可以用`@objc`标记类内的API。这在调用接受选择器（selector）的Objective-C API，来实现像目标-动作（target-action）设计模式时特别有用，比如`NSTimer`或`UIButton`。
+需要注意的是，只有派生自`NSObject`的类才能用`@objc`整体标记（编译器会自动标记），但是，如果类并不是派生自`NSObject`，你依然可以用`@objc`标记类内的API。这在调用接受方法选择器（selector）作为参数的Objective-C API时特别有用，可以用来实现目标-动作（target-action）设计模式。比如`NSTimer`或`UIButton`。
 
 > **提示**
 >
 > 编译器不会为使用`private`访问级别修饰符的声明自动添加`@objc`注解。
 
-当你在Objective-C中使用Swift API的时候，编译器通常时直接翻译。比如，这个Swift的API `func playSong(name: String)`，导入Objective-C的时候是这样的`- (void)playSong:(NSString *)name`。不过有一个例外：当你在Objective-C中使用Swift的构造函数时，编译器会在方法名前面加上"initWith"，并把第一个参数名首字母大写。例如这个Swift构造器：`init(songName: String, artist: String)`在Objective-C中导入为`- (instanceType)initWithSongName:(NSString *)songName artist:(NSString *)artist`。
+当你在Objective-C中使用Swift API的时候，编译器通常会直接进行转译。比如，这个Swift的API `func playSong(name: String)`，导入Objective-C的时候是这样的`- (void)playSong:(NSString *)name`。不过有一个例外：当你在Objective-C中使用Swift的构造函数时，编译器会在方法名前面加上"initWith"，并把第一个参数名首字母大写。例如这个Swift构造方法：`init(songName: String, artist: String)`在Objective-C中导入为`- (instanceType)initWithSongName:(NSString *)songName artist:(NSString *)artist`。
 
-Swift还提供了一个`@objc`注解的变体，用来指定暴露给Objective-C的符号名。例如，如果Swift类包含Objective-C不支持的字符，你可以指定一个Objective-C可用的备用名。如果你是为Swift方法指定备用名，请使用Objective-C的选择器语法。记得在选择的各部分之间加上冒号`:`。
+Swift还提供了一种`@objc`注解的变体，可以用来指定暴露给Objective-C的符号名。例如，如果Swift类包含Objective-C不支持的字符，你可以指定一个Objective-C可用的备用名。如果你是为Swift方法指定备用名，请使用Objective-C的方法选择器语法。记得在选择的各部分之间加上冒号`:`。
 
 ``` swift
 @objc(Squirrel)
@@ -419,21 +425,21 @@ class 松鼠 : NSObject {
 }
 ```
 
-当你对Swift的类使用`@objc(`*name*`)`注解的时候，这个类会在Objective-C中可用，并且不在任何名字空间内。因此，这个注解在你迁移一个可以存档（archivable）的Objective-C类到Swift的时候也很有用。因为可以存档的对象会保存它们的类名到存档文件（archive）中，你应该使用`@objc(`*name*`)`注解来指定与Objective-C类一样的名字，这样，旧的存档文件才能被你的新Swift类解包（unarchive）。
+当你对Swift的类使用`@objc(`*name*`)`注解的时候，这个类会在Objective-C中可用，并且不在任何名字空间内。因此，这个注解在你迁移一个可以存档（archivable）的Objective-C类到Swift的时候也很有用。因为可以存档的对象会保存它们的类名到存档文件（archive）中，你应该使用`@objc(`*name*`)`注解来指定与Objective-C类一样的名字，这样，旧的存档文件才能被新建的Swift类解包（unarchive）。
 
 > **提示**
 >
-> 相对的，Swift也可以用`@nonobjc`注解，让Swift中的声明在Objective-C中不可用。你可以用这个方法来解决桥接方法（bridging methods）的循环引用，这样就可以覆盖用`@objc`注解标记的类中的方法。如果一个Objective-C的方法被Swift的方法覆盖，但该方法无法在Objective-C中表示，例如，通过指定一个参数为变量，拿个方法必须标记为`@nonobjc`。（译者注：__FIXME__此处意思不太明确）
+> 相对的，Swift也可以用`@nonobjc`注解，让Swift中的声明在Objective-C中不可用。你可以用这个方法来解决桥接方法（bridging methods）的循环引用，这样就可以覆盖用`@objc`注解标记的类中的方法。如果一个Objective-C的方法被Swift的方法覆盖，但该方法无法在Objective-C中表示，例如，通过指定一个参数是可变的，那个方法必须标记为`@nonobjc`。
 
 #### 使用动态分配
 
-尽管`@objc`注解能把你的Swift API暴露给Objective-C运行时环境，但是它无法确保属性、方法、下标或构造器的动态分配（dynamic dispatch）。Swift编译器可能依然会去虚化（devirtualize）或内嵌（inline）访问成员，绕过Objective-C环境，优化你的代码的性能。当你用`dynamic`修饰符标记成员的声明，访问这个成员的时候，能保证它总是动态分配的。因为用`dynamic`修饰符标记的声明总是通过Objective-C运行时环境动态分配，它们被隐性地标记了`@objc`注解。
+尽管`@objc`注解能把你的Swift API暴露给Objective-C运行时环境，但是它无法确保属性、方法、下标或构造器能动态分配（dynamic dispatch）。Swift编译器可能依然会去虚化（devirtualize）或内嵌（inline）访问成员，绕过Objective-C环境，优化代码的性能。你可以用`dynamic`修饰符标记成员的声明，访问这个成员的时候，能保证它总是动态分配的。因为用`dynamic`修饰符标记的声明总是通过Objective-C运行时环境动态分配，它们被隐性地标记了`@objc`注解。
 
 需要动态分配的场景很少。不过如果你知道某个API的实现会被运行时替换，那么你就必须使用`dynamic`修饰符。例如，你可以使用Objective-C运行时环境的`method_exchangeImplementations`方法在程序运行时替换到一个方法的实现。如果Swift编译器内嵌了方法的实现，或者把它的访问去虚化了，那么新的实现将不被使用。
 
 ### Objective-C的方法选择器
 
-Objective-C的方法选择器是一种指向Objective-C方法名的类型。在Swift中，Objective-C的方法选择器用`Selector`结构体表示。你可以用一个字符串来构造一个方法选择器，例如`let mySelector: Selector = "tappedButton:"`。因为字符串可以自动转换为方法选择器，所以你可以给所有接受方法选择器参数的方法传入一个字符串。
+Objective-C的方法选择器是一种可以引用Objective-C方法名的类型。在Swift中，Objective-C的方法选择器用`Selector`结构体表示。你可以用一个字符串来构造一个方法选择器，例如`let mySelector: Selector = "tappedButton:"`。因为字符串可以自动转换为方法选择器，所以你可以给所有接受方法选择器参数的方法传入字符串。
 
 ``` swift
 import UIKit
@@ -483,11 +489,11 @@ let invalidSelecto: Selector = "invalid"
 array.performSelector(invalidSelector) // 引发一个异常
 ```
 
-在Objective-C运行时向对象直接发送消息在本质上是不安全的，因为编译器无法对发送消息得到的结果作保证，甚至无法保证对象可以接收某个消息。因此，通常是不鼓励使用`performSelector` API的，除非你的代码对Objective-C运行时提供的动态方法解析有特殊需求。否则，把一个类型的对象转换成`AnyObject`，然后使用可选调用链来调用方法会安全很多。详见[id的兼容性](#id的兼容性)。
+在Objective-C运行时向对象直接发送消息在本质上是不安全的，因为编译器无法对发送消息得到的结果作保证，甚至无法保证对象可以接收某个消息。因此，通常是不鼓励使用`performSelector` API的，除非你的代码对Objective-C运行时提供的动态方法解析有特殊需求。否则，先把一个对象转换成`AnyObject`，然后使用可选调用链来调用方法会安全很多。详见[id的兼容性](#id的兼容性)。
 
 ## 编写具备Objective-C行为的Swift类
 
-互操作性是你能够定义具备Objective-C行为的Swift类。你可以在编写Swift类的时候继承Objective-C的类，接受Objective-C的协议，并利用其他Objective-C的功能。这意味着你可以创建基于你熟悉的、有着明确Objective-C行为的类创建子类，同时，你可以使用Swift的现代、强大的语言特征来增强它。
+互操作性使你能定义具备Objective-C行为的Swift类。你可以在编写Swift类的时候继承Objective-C的类，接受Objective-C的协议，并利用其他Objective-C的功能。这意味着你可以创建基于你熟悉的、有着明确行为的Objective-C类创建子类，同时，你可以使用Swift的现代、强大的语言特征来增强它。
 
 ### 继承Objective-C的类
 
@@ -500,11 +506,11 @@ class MySwiftViewController : UIViewController {
 }
 ```
 
-你可以获得用Objective-C定义的超类的所有功能。如果你要为超类中的同名方法提供你自己的实现，你需要使用`override`关键字。
+你可以获得用Objective-C定义的亲类的所有功能。如果你要为亲类中的同名方法提供你自己的实现，你需要使用`override`关键字。
 
 #### NSCoding
 
-`NSCoding`协议要求符合改协议的类型实现`init(coder:)`构造方法。直接接受`NSCoding`协议的类必须实现这个方法，该类的子类如果有一个以上自定义构造方法、或包含没有初始值的属性，那么它也必须接受`NSCoding`协议。Xcode提供了下面这个自动修正（fix-it）功能，提供了一个默认实现：
+`NSCoding`协议要求符合改协议的类型实现`init(coder:)`构造方法。接受`NSCoding`协议的类必须实现这个方法，该类的子类如果有一个以上自定义构造方法、或包含没有初始值的属性，那么它也必须接受`NSCoding`协议。Xcode提供了下面这个自动修正（fix-it）功能，提供了一个默认实现：
 
 ``` swift
 required init(coder aDecoder: NSCoder) {
@@ -512,11 +518,11 @@ required init(coder aDecoder: NSCoder) {
 }
 ```
 
-对于从StoryBoard中加载的对象，或者用`NSUserDefaults`或`NSKeyedArchiver`从磁盘上解包的对象，你必须为这个构造函数提供一个完整的实现。不过，你可能不需要为那些无法或不会通过这种途径初始化的类型实现这个构造方法。
+对于从StoryBoard中加载的对象，或者用`NSUserDefaults`或`NSKeyedArchiver`存档至磁盘中的对象，你必须为这个构造函数提供一个完整的实现。不过，你可能不需要为那些无法或不会通过这种途径初始化的类型实现这个构造方法。
 
 ### 支持协议
 
-Objective-C的协议会导入为Swift的协议，类可以通过在其父类名后，加上逗号分割的协议名列表，来支持协议，如果需要的话。
+Objective-C的协议会导入为Swift的协议，如果需要的话，类可以通过在其亲类名后，加上逗号分隔的协议名列表，以支持协议。
 
 ``` swift
 class MySwiftViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -537,15 +543,15 @@ var tableViewController: protocal<UITableViewDataSource, UITableViewDelegate>
 
 ### 编写构造方法和析构方法
 
-Swift的编译器会确保你的构造方法不会遗留任何没有初始化的属性以增强代码的安全性和可预测性。另外，与Objective-C不同的是，Swift不需要额外调用内存分配方法。即便你在使用Objective-C的类，你也只需要使用原生的Swift构造语法--Swift会把Objective-C的构造方法转换成Swift的构造方法。你可以阅读**构造方法**章节，了解更多关于如何实现你自己的构造方法的信息。
+Swift的编译器会确保你的构造方法不会遗留任何没有初始化的属性以增强代码的安全性和可预测性。另外，与Objective-C不同的是，Swift不需要额外调用内存分配方法。即便你在使用Objective-C的类，你也只需要使用原生的Swift构造语法--Swift会把Objective-C的构造方法转换成Swift的构造方法。你可以阅读“Swift编程语言（Swift 2.1版）”的“构造方法”章节，了解更多关于如何实现你自己的构造方法的信息。
 
-当你需要在对象被回收时，作一些额外的清理工作，你可以实现一个析构方法，而不是使用`dealloc`方法。Swift的析构方法会在实例被回收前自动调用。Swift会在触发字类的析构方法后，自动调用父类的析构方法。当你使用Objective-C类，或者你的Swift类继承自Objective-C类，Swift一样也会调用该类的父类的`dealloc`方法。你可以阅读*Swift编程语言（Swift 2版）*的**析构方法**章节了解更多关于如何实现你自己的析构方法的信息。
+当你需要在对象被回收时做一些额外的清理工作，你可以实现一个析构方法，而不是使用`dealloc`方法。Swift的析构方法会在实例被回收前自动调用。Swift会在触发子类的析构方法后，自动调用亲类的析构方法。当你操作的是Objective-C类，或者你的Swift类继承自Objective-C类，Swift一样也会调用该类的亲类的`dealloc`方法。你可以阅读“Swift编程语言（Swift 2.1版）”的“析构方法”章节了解更多关于如何实现你自己的析构方法的信息。
 
 ### 在Objective-C API中使用Swift的类名
 
-Swift的类是基于它们编译进的模块来确定名字空间的，即便是用于Objective-C的代码中时也一样。和所有的类都在全局名字空间中，从而不能包含两个同名类的Objective-C不一样，Swift的类可以通过它们所处的模块进行区分。例如，在名为`MyFramework`的框架中，名为`DataManager`的类的全名`MyFramework.DataManager`。Swift应用的编译目标（Target）也是一个模块，因此在一个叫做`MyGreatApp`的应用中，名为`Observer`的类的全名为`MyGreatApp.Observer`。
+Swift的类是根据它们编译进的模块来确定名字空间的，即便是用于Objective-C的代码中时也一样。和所有的类都在全局名字空间中，因而不能包含两个同名类的Objective-C不一样，Swift的类可以通过它们所处的模块进行区分。例如，在名为`MyFramework`的框架中，名为`DataManager`的类的全名`MyFramework.DataManager`。Swift应用的编译目标（Target）也是一个模块，因此在一个叫做`MyGreatApp`的应用中，名为`Observer`的类的全名为`MyGreatApp.Observer`。
 
-为了保留在Objective-C中使用的Swift类的名字空间，Swift的类暴露给Objective-C运行时环境的时候，暴露的是全名。因此，当你使用以字符串的形式操作Swift的类名的时候，你必须使用类的全名。例如，当你需要创建一个基于文档的Mac应用的时候，你需要在应用的`Info.plist`文件中指定`NSDocument`子类的类名。如果你是用Swift编写应用，那么你必须使用这个文档子类的全名，也就是要包含了基于应用或框架的模块名。
+为了保留在Objective-C中使用的Swift类的名字空间，Swift的类暴露给Objective-C运行时环境的时候，暴露的是全名。因此，当你使用以字符串的形式操作Swift的类名的时候，你必须使用类的全名。例如，当你需要创建一个基于文档的Mac应用的时候，你需要在应用的`Info.plist`文件中指定`NSDocument`子类的类名。如果你是用Swift编写应用，那么你必须使用这个文档子类的全名，也就是要包含应用或框架的模块名。
 
 在下面这个示例中，`NSClassFromString`函数用来通过字符串形式的类名来获取类的引用。要获取一个Swift类，你就必须使用包含了应用名的类的全名：
 
@@ -557,9 +563,9 @@ let myPersonClass: AnyClass? = NSClassFromString("MyGreatApp.Person")
 
 （译者注：Interface Builder作为一个Xcode的一个组件，我没有给出翻译。一方面翻译后听起来很别扭；另一方面，也不方便用户对照查找。Interface Builder字面上的意思“界面构建器”。）
 
-Swift编译器包含了能让你的Swift类与Interface Builder交互的注解。和在Objective-C中一样，你可以使用外连（outlets），动作（actions）和实时渲染。
+Swift编译器支持能让你的Swift类与Interface Builder交互的注解。和在Objective-C中一样，你可以使用外连（outlets），动作（actions）和实时渲染。
 
-（译者注：outlet在业界还没有统一的翻译，这里暂时翻译成外连。后文中可能会根据情况，保留英文原文。）
+（译者注：outlet还没有统一的翻译，这里暂时翻译成外连。后文中可能会根据情况，保留英文原文。）
 
 #### 使用外连和动作
 
@@ -585,7 +591,7 @@ class MyViewController : UIViewController {
 
 你可以使用另外两个注解--`@IBDesignable`和`@IBInspectable`--来使用实时渲染，在Interface Builder中与自定义视图（View）进行交互。当你创建了一个派生自`UIView`或`NSView`类的自定义视图的时候，你就可以在类声明的前面加上`@IBDesignable`注解。当你把这个自定义视图加入Interface Builder中之后（通过在inspector面板中，设置视图对应的自定义类），Interface Builder就会在画板（Canvas）上对你的视图进行实时渲染。
 
-你还可以对支持自定义的类型的属性使用`@IBInspectable`注解。在你把自定义视图加入Interface Builder中之后，你就能在inspector面板中编辑这些属性了。
+你还可以对支持自定义的属性使用`@IBInspectable`注解。在你把自定义视图加入Interface Builder中之后，你就能在Inspector面板中编辑这些属性了。
 
 ``` swift
 @IBDesignable
@@ -596,29 +602,29 @@ class MyCustomView: UIView {
 }
 ```
 
-### 指定属性的注解
+### 设置属性的参数
 
-（译者注：这里把描述属性的参数也一并翻译为注解。注意区别于Java中的注解概念，两者有相似点，但是并不是同一概念。）
+（译者注：注意区分属性的参数（attributes）区别与方法的参数（attributes））
 
-在Objective-C中，属性有一系列可以指定关于属性行为的额外信息的注解。在Swift中，你用不同的方式来指定这些属性注解。
+在Objective-C中，属性有一系列可以指定关于属性行为的额外信息的参数。在Swift中，你用不同的方式来指定这些属性参数。
 
 #### 强引用和弱引用
 
-Swift的属性默认是强引用。你需要使用`weak`关键词来表明属性指向的存储属性值的对象使用的是弱引用。这个关键词只能被用于可选类型的属性。详情请参阅*Swift编程语言（Swift 2版）*的“参数（Attributes）”章节。
+Swift的属性默认是强引用。你需要使用`weak`关键词来表明属性指向的存储属性值的对象使用的是弱引用。这个关键词只能被用于可选类型的属性。详情请参阅“Swift编程语言（Swift 2.1版）”的“参数”（Attributes）章节。
 
 #### 读写与只读
 
-在Swift中，没有`readwrite`和`readonly`注解。当声明存储属性时，使用`let`来使之成为只读，使用`var`来使之可以读写。当声明计算属性的时候，只提供取值方法（getter）使之成为只读，同时提供取值方法（getter）和赋值方法（setter）使之可以读写。要了解更多信息，请查看*Swift编程语言（Swift 2版）*。
+在Swift中，没有`readwrite`和`readonly`参数。当声明存储属性时，使用`let`来使之成为只读，使用`var`来使之可以读写。当声明计算属性的时候，只提供取值方法（getter）使之成为只读，同时提供取值方法（getter）和赋值方法（setter）使之可以读写。要了解更多信息，请查看“Swift编程语言（Swift 2.1版）”的“属性”章节。
 
 #### 复制语义
 
-在Swift中，Objective-C的`copy`属性注解被转译为`@NSCopying`。属性的类型需要复合`NSCopying`协议。要了解更多信息，请查看*Swift编程语言（Swift 2版）*的“参数（Attributes）”章节。
+在Swift中，Objective-C的`copy`属性参数被转译为`@NSCopying`。属性的类型需要复合`NSCopying`协议。要了解更多信息，请查看“Swift编程语言（Swift 2.1版）”的“参数”（Attributes）章节。
 
 ### 实现Core Data的托管对象子类
 
 （译者注：这里Managed Object翻译成托管对象。如果你学过.NET，请不要把这里的托管对象与.NET里的托管对象混淆，两者概念不一样。）
 
-Core Data为`NSManagedObject`的子类提供了属性的底层存储和实现的支持。Core Data还提供了从对多关系（to-many relationship）增加和删除对象的实例方法的实现。你可以使用`@NSManaged`注解来告诉Swift编译器，Core Data会在运行时提供存储和实现。
+Core Data为`NSManagedObject`的子类提供了属性的底层存储和实现的支持。Core Data还提供了在对多关系（to-many relationship）中增加和删除对象的实例方法的实现。你可以使用`@NSManaged`注解来告诉Swift编译器，Core Data会在运行时提供存储和实现。
 
 你需要在你的托管类的子类中，为所有与Core Data模型相关的属性和关系有关的属性和方法声明加上`@NSManaged`注解。比如，假设有一个名为“Person”的Core Data实体（Entity）有一个字符串属性“name”，以及一个对多的关系“friends”：
 
@@ -647,17 +653,17 @@ class Person : NSManagedObject {
 
 ## 使用Cocoa数据类型
 
-作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的使用Cocoa数据类型的方法。
+作为与Objective-C互操作性功能的一部分，Swift提供了便利而高效的利用Cocoa数据类型的方法。
 
-Swift会自动把部分Objective-C的数据类型转换成Swift的数据类型，和部分Swift数据类型转换成Objective-C数据类型。有一部分数据类型在Swift和Objective-C中时可以通用的。可以转换或通用的数据类型，我们称之为*桥接*（bridged）类型例如，在Swift代码中，你可以把`Array`类型的值传给一个接受`NSArray`对象的方法。你也可以在桥接的类型之间进行类型转换。当你使用`as`或直接显式地指定常量或变量的类型在桥接的类型之间进行转换时，Swift会自动对类型进行桥接。
+Swift会自动把部分Objective-C的数据类型转换成Swift的数据类型、把部分Swift数据类型转换成Objective-C数据类型。有些数据类型在Swift和Objective-C中时可以通用的。可以转换或通用的数据类型，我们称之为*桥接*（bridged）类型。例如，在Swift代码中，你可以把`Array`类型的值传给一个接受`NSArray`对象的方法。你也可以在桥接的类型之间进行类型转换。当你在桥接的类型之间进行转换时--用`as`或直接为常量或变量显式地指定类型--Swift会自动对类型进行桥接。
 
-Swift还为Foundation数据类型提供了快捷接口层，让这些数据类型的使用语法，感觉起来与Swift语言的其它部分更佳自然、一致的结合。
+Swift还为Foundation数据类型提供了快捷接口层，让这些数据类型的使用语法，感觉起来与Swift语言的其它部分更加自然、统一地结合。
 
 ### 字符串
 
-Swift会自动桥接`String`类型和`NSString`类。这意味着如果你在任何地方需要使用`NSString`，那么你也可以使用`String`类型替代，并且同时具有`String`类型的字符串变量插入（interpolation）功能和其它的Swift字符串API，以及`NS String`类提供的大量功能。因此，你几乎永远都不需要在你的Swift代码中直接使用`NSString`类。事实上，在Swift导入Objective-C的API时，会把所有的`NSString`类型替换为`String`类型。当你的Objective-C代码导入Swift类的时候，在导入的API中，所有的`String`类型都会被替换为`NSString`类型。
+Swift会自动桥接`String`类型和`NSString`类。这意味着如果你在任何地方需要使用`NSString`，那么你也可以使用`String`类型替代。它同时具有`String`类型的字符串变量插入（interpolation）功能和其它的Swift字符串API，以及`NSString`类提供的大量功能。因此，你几乎永远都不需要在你的Swift代码中直接使用`NSString`类。事实上，在Swift导入Objective-C的API时，会把所有的`NSString`类型替换为`String`类型。当你的Objective-C代码导入Swift类的时候，在导入的API中，所有的`String`类型都会被替换为`NSString`类型。
 
-要使用字符串桥接，你只需要导入Foundation模块。比如，你可以对Swift字符串访问`NSString`类的属性--`capitalizedString`，Swift会自动桥接`String`到`NSString`对象以访问这个属性。这个属性甚至会直接返回Swift的`String`类，因为它在导入的过程中已经进行了类型转换。
+要使用字符串桥接，你只需要导入Foundation模块。比如，你可以访问Swift字符串的`capitalizedString`属性--这是来自`NSString`类的属性。Swift会自动桥接`String`到`NSString`对象以访问这个属性。这个属性甚至会直接返回Swift的`String`类，因为它在导入的过程中已经进行了类型转换。
 
 ``` swift
 import Foundation
@@ -666,7 +672,7 @@ let capitalizedGreeting = greeting.capitalizedString
 // capitalizedString: String = Hello, World!
 ```
 
-如果你确实需要使用`NSString`对象，你可以在需要的时候通过类型转换把它转成Swift的`String`类型值。因为`String`类型值随时都可以由`NSString`对象转换而成，因此在进行类型转换时无需使用可选类型转换操作符（`as?`）。你也可以通过为变量或常量显式地指定类型来用字符串字面量（string literal）创建一个`NSString`对象。
+如果你确实需要使用`NSString`对象，你可以在需要的时候通过类型转换把它转成Swift的`String`类型值。因为`String`类型值随时都可以由`NSString`对象转换而成，因此在进行类型转换时无需使用可选类型转换操作符（`as?`）。你也可以显式地指定变量或常量的类型，并为它赋一个字符串字面量（string literal）来创建一个`NSString`对象。
 
 ``` swift
 import Foundation
@@ -734,7 +740,7 @@ func addDatesParsedFromTimestamps(timestamps: [String])
 
 如果一个对象是Objective-C或Swift类的实例，或者可以被桥接到一个类，那么它就与`AnyObject`兼容。你可以桥接所有的`NSArray`对象到Swift的数组，因为所有的Objective-C对象都与`AnyObject`兼容。因为所有的`NSArray`对象都可以桥接到Swift的数组，所以Swift编译器在导入Objective-C的API时会把`NSArray`类替换为`[AnyObject]`。
 
-在你把`NSArray`对象桥接到Swift数组之后，你就可以把数组的类型转换成更加明确的类型。与把`NSArray`对象转换成`[AnyObject]`类型不同的是，把`AnyObject`向下转换成一个更加明确的类型并不能保证成功。在运行之前，编译器是无法确知数组的所有元素都能被转换成你所指定的类型的。因此，你需要使用条件类型转换操作符`as?`来将`[AnyObject]`向下转换为`[SomeType]`，在你确信转换可以成功时，也可以使用无条件类型转换操作符`as!`。例如，如果你知道Swift数组只包含`NSView`类（或`NSView`的子类）的实例，你就可以把包含`AnyObject`类型元素的数组向下转换成`NSView`对象数组了。如果在运行时，Swift数组中有任何一个元素不是`NSView`对象，类型转换的结果就回返回`nil`。
+在你把`NSArray`对象桥接到Swift数组之后，你就可以把数组的类型转换成更加明确的类型。与把`NSArray`对象转换成`[AnyObject]`类型不同的是，把`AnyObject`向下转换成一个更加明确的类型并不能保证成功。在运行之前，编译器是无法确知数组的所有元素都能被转换成你所指定的类型的。因此，你需要使用条件类型转换操作符`as?`来将`[AnyObject]`向下转换为`[SomeType]`，在你确信转换可以成功时，也可以使用无条件类型转换操作符`as!`。例如，如果你知道Swift数组只包含`NSView`类（或`NSView`的子类）的实例，你就可以把包含`AnyObject`类型元素的数组向下转换成`NSView`对象数组了。如果在运行时，Swift数组中有任何一个元素不是`NSView`对象，类型转换的结果就会返回`nil`。
 
 ``` swift
 let swiftArray = fundationArray as [AnyObject]
@@ -755,9 +761,9 @@ for view in foundationArray as! [NSView] {
 
 > **提示**
 >
-> 作为性能优化的一项措施，把一个集合无条件向下类型转换成另一个类型更加特殊的集合时，例如，`NSArray as! [String]`，数组成员的类型检查可能会被延迟到它们被访问的时候才会进行。因此，无条件类型转换为不兼容的类型可能会看起来成功了，直到元素的类型转换失败触发一个运行时错误。
+> 作为性能优化的一项措施，把一个集合无条件向下类型转换成另一个类型更加特殊的集合时，例如，`NSArray as! [String]`，数组成员的类型检查可能会被延迟到它们被访问的时候才会进行。因此，无条件类型转换为不兼容的类型可能会看起来成功了，直到某个元素的类型转换失败触发一个运行时错误。
 >
-> 把一个集合对象通过条件类型转换转成另一个类型更加特殊的集合时，例如，`NSArray as? [String]`，会立刻对所有的数组元素进行类型检查。如果有任何数组元素在进行类型转换时出错，就回返回`nil`。
+> 把一个集合对象通过条件类型转换转成另一个类型更加特殊的集合时，例如，`NSArray as? [String]`，会立刻对所有的数组元素进行类型检查。如果有任何数组元素在进行类型转换时出错，就会返回`nil`。
 
 你也可以通过与前面提到的桥接规则相同的方式，直接用Swift的数组字面量创建一个`NSArray`对象。当你显式地把一个常量或变量指定为`NSArray`类型，并给它赋值一个数组字面量时，Swift会创建一个`NSArray`对象而不是Swift数组。
 
@@ -774,7 +780,9 @@ let schoolSupplies : NSArray = ["Pencil", "Eraser", "Notebook"]
 
 （译者注：Set通常会翻译为集合，但是这样翻译可能会和Collection(集合)混淆，因此我这里把Set翻译为数集。在程序语言中的数集的成员并不局限于数字，通常可以包含任何对象，与数组(array)类似的，请不要因为Set的翻译中包含“数”这个字而引起误会。）
 
-除了数组之外，Swift会自动把`Set`类型桥接为`NSSet`类。当你把参数化的`NSSet`对象桥接至Swift数集时，得到的数集对象的类型为`Set<ObjectType>`。如果`NSSet`对象没有参数化，它会被桥接到类型为`Set<NSObject>`（译者按：因为数集实际上声明为`Set<Element : Hashable>`，因为有了`Hashable`这个约束，所以映射的时候不是`AnyObject`，而是`NSObject`，这一点区别于数组。另外，此处与后文中有出入，但是译者认为，即便后文使用了`Set<AnyObject>`这种表示方式，这里的`AnyObject`也需要遵守`Hashable`协议）的Swift数集。
+除了数组之外，Swift会自动把`Set`类型桥接为`NSSet`类。当你把参数化的`NSSet`对象桥接至Swift数集时，得到的数集对象的类型为`Set<ObjectType>`。如果`NSSet`对象没有参数化，它会被桥接到类型为`Set<NSObject>`的Swift数集。
+
+（译者按：因为数集实际上声明为`Set<Element : Hashable>`，因为有了`Hashable`这个约束，所以映射的时候不是`AnyObject`，而是`NSObject`，这一点区别于数组。另外，此处与后文中有出入，但是译者认为，即便后文使用了`Set<AnyObject>`这种表示方式，这里的`AnyObject`也需要遵守`Hashable`协议）
 
 例如，下面这段Objective-C声明：
 
@@ -817,17 +825,18 @@ var cachedData: [NSURL: NSData]
 func fileSizesForURLsWithSuffix(suffix: String) -> [NSURL: NSNumber]
 func setCacheExpirations(expirations: [NSURL: NSDate])
 ```
-你可以把人和`NSDictionary`对象桥接到Swift字典，因为所有的Objective-C对象都与`AnyObject`兼容。回忆一下，如果对象是Objective-C或Swift的类的实例，或可以被桥接到一个类，那么它就与`AnyObject`兼容。因为所有的`NSDictionary`对象可以被桥接到Swift字典，所以Swift编译器会在导入Objective-C API的时候把`NSDictionary`类替换为`[NSObject: AnyObject]`。类似的，当你在Objecitve-C代码中使用Swift的类或协议时，Swift字典会被重映射为`NSDictionary`对象。
+
+你可以把任何`NSDictionary`对象桥接到Swift字典，因为所有的Objective-C对象都与`AnyObject`兼容。回忆一下，如果对象是Objective-C或Swift的类的实例，或可以被桥接到一个类，那么它就与`AnyObject`兼容。因为所有的`NSDictionary`对象可以被桥接到Swift字典，所以Swift编译器会在导入Objective-C API的时候把`NSDictionary`类替换为`[NSObject: AnyObject]`。类似的，当你在Objecitve-C代码中使用Swift的类或协议时，Swift字典会被重映射为`NSDictionary`对象。
 
 把`NSDictionary`对象桥接至Swift字典的之后，你可以把这个集合向下类型转换为一个更特殊的字典类型。和Swift数组和数集的向下类型转换一样，Swift字典的向下类型转换并不保证成功，使用`as?`操作符把`[NSObject: AnyObject]`向下转换为更特殊的类型时，会返回一个可选类型值。
 
-当你反向类型转换的时候--从Swift字典转换成`NSDictionary`对象--键和值必须都是类的实例，或者可以被桥接到某个类的实例。
+当你反过来进行类型转换的时候--从Swift字典转换成`NSDictionary`对象--键和值必须都是类的实例，或者可以被桥接到某个类的实例。
 
 你也可以通过与前面提到的桥接规则相同的方式，用一个Swift字典字面量创建一个`NSDictionary`对象，当你显式地把一个常量或变量指定为`NSDictionary`类型，并给它赋值一个字典字面量时，Swift会创建一个`NSDictionary`对象而不是Swift字典。
 
 ### 错误
 
-Swift自动把`ErrorType`桥接至`NSError`类。会发生错误的Objective-C方法，会被导入为可抛出异常的Swift方法，而能抛出异常的Swift方法，会遵循Objective-C的错误处理惯例，被导入为会发生错误的Objective-C方法。
+Swift自动把`ErrorType`桥接至`NSError`类。会发生错误的Objective-C方法，被导入为可抛出异常的Swift方法。能抛出异常的Swift方法，会遵循Objective-C的错误处理惯例，被导入为会发生错误的Objective-C方法。
 
 有`@objc`注解，并符合`ErrorType`协议的Swift枚举类型，会在生成的头文件中创建一个`NS_ENUM`声明以及错误领域（error domain）所对应的字符串常量。例如，下面这个Swift枚举类型声明：
 
@@ -853,7 +862,7 @@ static NSString * const CustomErrorDomain = @"Project.CustomError";
 
 ### Foundation数据类型
 
-Swift为在Foundation框架中定义的数据类型提供了一个快捷的封装接口。用这个封装层来操作`CGSize`和`CGPoint`的时候，语法感觉起来更加自然，与其它Swift代码更加一致。比如，你可以使用这种语法来创建`CGSize`结构体：
+Swift为在Foundation框架中定义的数据类型提供了快捷的封装接口。用这个封装层来操作`CGSize`和`CGPoint`的时候，语法感觉起来更加自然，与其它Swift代码更加一致。比如，你可以使用下面这种语法来创建`CGSize`结构体：
 
 ``` swift
 let size = CGSize(width: 20, height: 40)
@@ -878,13 +887,15 @@ NSLog("%.7f", pi)
 // 把 "3.1415927" 输出到控制台
 ```
 
-Swift自身也提供了一个打印函数`print(_:)`。这个函数支持Swift的字符串插入，所有用起来简单、强大而且通用。这个函数不会输出到系统控制台，但是可以满足常规的打印需求。
+Swift自身也提供了一个打印函数`print(_:)`。这个函数支持Swift的字符串插入，用法简单、强大而且通用。这个函数不会输出到系统控制台，但是可以满足常规的打印需求。
 
 `NSAssert`系列函数没有被引入Swift。取而代之的是`assert`函数。
 
 ### Core Foundation
 
-Core Foundation类型会自动被导入为功能完备的Swift类。只要包含了内存管理的注解，Swift会自动管理Core Foundation对象的内存，包括你在代码中创建的Core Foundation对象。在Swift中，你可以互换使用Foundation和Core Foundation的无缝桥接(toll-free bridge)类型对。部分无缝桥接的Core Foundation类型，如果你先把它转换成Foundation类型，那么你还可以把它映射到Swift标准库中的类型。
+Core Foundation类型会自动被导入为功能完备的Swift类。只要包含了内存管理的注解，Swift会自动管理Core Foundation对象的内存，包括你自己在代码中创建的Core Foundation对象。在Swift中，你可以互换使用Foundation和Core Foundation的无缝桥接(toll-free bridge)类型对。部分无缝桥接的Core Foundation类型，如果你先把它转换成Foundation类型，那么你还可以把它映射为Swift标准库中的类型。
+
+（译者按：请注意区分Foundation与Core Foundation之间的无缝桥接(toll-free bridging)，以及Swift与Objective-C之间的桥接（bridging）。）
 
 #### 重映射的类型
 
@@ -927,19 +938,19 @@ let memoryManagedResult = StringByAddingTwoStrings(str1, str2).takeUnretainedVal
 
 你也可以对不受内存管理的对象调用`retain()`，`release()`和`autorelease()`方法，不过这种方式不受推荐。
 
-要了解更多信息，请参阅*Memory Management Programming Guide for Core Foundation*文档。
+要了解更多信息，请参阅“Memory Management Programming Guide for Core Foundation”文档。
 
 ## 使用Cocoa设计模式
 
-要编写设计优秀，适应性好的应用的一条准则是使用成熟的Cocoa设计模式。许多设计模式都依赖在Objective-C中定义的类。得益于Swift与Objective-C的互操作性，你可以在你的Swift代码中使用这些设计模式。而且在很多情况下，你可以使用Swift的语言特性来增强或简化已有的Cocoa设计模式，使它们更加强大且更加易用。
+要编写设计优秀，适应性良好的应用的一条准则是使用成熟的Cocoa设计模式。许多设计模式都依赖在Objective-C中定义的类。得益于Swift与Objective-C的互操作性，你可以在你的Swift代码中使用这些设计模式。而且在很多情况下，你还可以使用Swift的语言特性来增强或简化已有的Cocoa设计模式，使它们更加强大且更加易用。
 
 ### 委托
 
 （译者注：这里把delegation翻译成委托，如果你学过.NET，请不要与.NET的委托混淆，两者是完全不同的概念。）
 
-无论是在Swift还是Objective-C中，委托（delegation）通常是通过定义了交互方式的协议来表示的。类通过遵守协议来实现委托。在Objective-C中，在你向委托对象发送一个它可能无法响应的消息之前，你需要先询问委托对象是否可以响应这个方法选择器（selector）。在Swift中，你可以使用可选调用链来对可能为nil的对象，触发一个可选的协议方法，然后通过使用`if-let`语法来的到可能的返回结果。后面列出的代码展示了如下几个过程：
+无论是在Swift还是Objective-C中，委托（delegation）模式通常是通过定义了交互方式的协议来表示的。类通过遵守协议来实现委托模式。在Objective-C中，在你向委托对象发送一个它可能无法响应的消息之前，你需要先询问委托对象是否可以响应这个方法选择器（selector）。在Swift中，你可以使用可选调用链来对可能为`nil`的对象触发一个可选的协议方法，然后通过使用`if-let`语法获得可能的返回结果。后面列出的代码展示了如下几个过程：
 
-1. 检查`myDelegate`是否不为`nil`。
+1. 检查`myDelegate`是否**不**为`nil`。
 2. 检查`myDelegate`是否实现了`window:willUseFullScreenContentSize:`方法。
 3. 如果1和2都为真，那么调用这个方法并将结果赋值给`fullScreenSize`。
 4. 打印方法的返回值。
@@ -958,9 +969,9 @@ if let fullScreenSize = myDelegate?.window?(myWindow, willUseFullScreenContentSi
 
 ### 懒惰初始化
 
-一个*懒惰属性*（lazy property）是指其底层的值在首次访问的时候才倍初始化的属性。懒惰属性在属性的初始值需要复杂运算，或者需要进行大计算量地设置，或者是在实例初始化完成前无法确知的情况下非常有用。
+一个*懒惰属性*（lazy property）是指其底层的值在首次访问的时候才被初始化的属性。懒惰属性在初始化时需要复杂运算，或者需要进行大运算量的设置，或者是实例初始化完成前无法确知的情况下非常有用。
 
-在Objective-C中，属性可以覆盖取值方法的默认实现，让属性对应的实例变量的值为`nil`的时候，才有条件地进行初始化：
+在Objective-C中，属性可以覆盖取值方法的默认实现（synthesized getter），让属性对应的实例变量的值为`nil`的时候，才有条件地进行初始化：
 
 ``` objc
 @property NSXMLDocument *XMLDocument;
@@ -974,13 +985,13 @@ if let fullScreenSize = myDelegate?.window?(myWindow, willUseFullScreenContentSi
 }
 ```
 
-在Swift中，带有初始值的存储属性（stored property）可以使用`lazy`修饰符声明，以让计算初始值的表达式在属性首次访问的时候才进行计算：
+在Swift中，带有初始值的存储属性（stored property）可以使用`lazy`修饰符声明，以让计算初始值的表达式在属性首次访问的时候才进行运算：
 
 ``` swift
 lazy var XMLDocument: NSXMLDocument = try! NSXMLDocument(contentOfURL:NSBundle.mainBundle().URLForResource("document", withExtension:"xml")!, options:0)
 ```
 
-懒惰属性在初次访问时才进行计算，而此时实例已经初始化完成，因此默认的初始化表达式可以访问实例的常量或变量属性：
+懒惰属性在初次访问时才进行计算，而此时实例已经完成初始化，因此默认的初始化表达式可以访问实例的常量或变量属性：
 
 ``` swift
 var pattern: String
@@ -1002,7 +1013,7 @@ lazy var ISO8601DateFormatter : NSDateFormatter = {
 >
 > 如果一个懒惰属性尚未被初始化，且同时被多个线程访问，那么程序并不保证属性只被初始化一次。
 
-要了解更多关于“懒惰存储属性”的信息，请查看Swift编程语言（Swift 2.1版）。
+要了解更多信息，请查看“Swift编程语言（Swift 2.1版）”的“懒惰存储属性”部分。
 
 ### 错误处理
 
@@ -1010,7 +1021,7 @@ lazy var ISO8601DateFormatter : NSDateFormatter = {
 
 > **提示**
 >
-> *处理*（consume）错误的方法，比如委托方法或接受一个包含`NSError`参数的完成代码快（completion handler）作为参数的方法，在导入Swift的时候不会被转译成可以抛出错误的方法。
+> *处理*（consume）错误的方法（method），比如委托方法或接受一个包含`NSError`参数的完成代码块（completion handler）作为参数的方法，在导入Swift的时候不会被转译成可以抛出错误的方法。
 
 举个例子，请看下面来自`NSFileManager`类的Objective-C方法：
 
@@ -1027,7 +1038,7 @@ func removeItemAtURL(URL:NSURL) throws
 
 注意`removeItemAtURL(_:)`方法在导入Swift之后的返回类型变为`Void`，没有了`error`参数，但是包含了一个`throws`声明。
 
-如果Objective-C方法的最后一个非代码块参数的类型为`NSError **`，Swift就会把它替换为`throws`关键词，以指示这个方法能抛出一个错误。如果Objective-C方法的错误参数是第一个参数，Swift会试图通过删除方法选择器第一部分的`WithError`或`AndReturnError`词尾（如果存在的话）来进一步简化方法名。如果得到的方法名，已经被另一个方法所使用，那么这个方法名将不会改变。
+如果Objective-C方法的最后一个非代码块参数的类型为`NSError **`，Swift就会把它替换为`throws`关键词，以指示这个方法能抛出一个错误。如果Objective-C方法的错误参数是第一个参数，Swift会试图通过删除方法选择器第一部分的`WithError`或`AndReturnError`词尾（如果存在的话）来进一步简化方法名。如果得到的方法名已经被另一个方法所使用，那么这个方法名将不会改变。
 
 如果能产生错误的Objective-C方法返回一个`BOOL`值，用于指示方法调用的成败，Swift会把方法的返回值改为`Void`。类似的，如果能产生错误的Objective-C方法通过返回一个`nil`值用来指示方法调用失败，那么Swift会把方法的返回类型改为返回一个非可选的类型。
 
@@ -1083,7 +1094,7 @@ do {
 
 在Objective-C中，如果你只关心错误是否发生，而不关心发生的是什么错误，你可以传`NULL`给错误参数。在Swift中，你可以使用`try?`把一个抛出错误的表达式转换成一个返回可选类型值的方法，你可以随后检查返回值是否为`nil`。
 
-例如，`NSFileManager`的实例方法：`URLForDirectory(_:inDomain:appropriateForURL:create:)`，返回一个位于特定搜索路径和文件域（domain）下的URL，或者如果合适的URL不存在且无法创建，则产生一个错误。在Objective-C中，方法调用的成败可以通过检查返回值是否为一个`NSURL`对象来确定。
+例如，`NSFileManager`的实例方法：`URLForDirectory(_:inDomain:appropriateForURL:create:)`，返回一个位于特定搜索路径和文件域（domain）下的URL；如果合适的URL不存在且无法创建，则产生一个错误。在Objective-C中，方法调用的成败可以通过检查返回值是否为一个`NSURL`对象来确定。
 
 ``` objc
 NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -1105,7 +1116,7 @@ if let tmpURL = try? fileManager.URLForDirectory(.CachesDirectory, inDomain: .Us
 
 #### 抛出错误
 
-如果Objective-C方法中产生了错误，改方法的错误指针就回指向这个错误：
+如果Objective-C方法中产生了错误，该方法的错误指针就会指向这个错误：
 
 ``` objc
 // 错误发生时
@@ -1116,7 +1127,7 @@ if (errorPtr) {
 }
 ```
 
-如果在Swift方法中发生了错误，这个错误就回被抛出，并自动传递给调用者：
+如果在Swift方法中发生了错误，这个错误就会被抛出，并自动传递给调用者：
 
 ``` swift
 // 错误发生时
@@ -1147,21 +1158,21 @@ class SerializedDocument : NSDocument {
 }
 ```
 
-如果方法无法使用文档的文件内容创建一个对象，它会抛出一个`NSError`对象。如果方法是在Swift代码中调用的，错误会被传递给它的调用作用于。如果方法是在Objective-C代码中调用的，错误就回传递给错误指针参数。
+如果方法无法使用文档的文件内容创建一个对象，它会抛出一个`NSError`对象。如果方法是在Swift代码中调用的，错误会被传递给它的调用作用域（calling scope）。如果方法是在Objective-C代码中调用的，错误就会传递给错误指针参数。
 
-（译者按：原文中这段文字于本节开头第一段重复，这里不再翻译）
+（译者按：原文中这段文字于本节开头第一段重复，这里不再翻译。）
 
 > **提示**
 >
-> 尽管Swift的错误处理于Objective-C的异常处理类似，但是这两个是完全不同的功能。如果Objective-C方法在运行时抛出异常Swift会触发一个运行时错误。在Swift中是无法直接从Objective-C的异常中恢复的。所有的异常都必须在Swift调用的Objective-C代码实现中处理。
+> 尽管Swift的错误处理与Objective-C的异常处理类似，但是这两个是完全不同的功能。如果Objective-C方法在运行时抛出异常，Swift会触发一个运行时错误。在Swift中是无法直接从Objective-C的异常中恢复的。所有的异常都必须在Swift调用的Objective-C代码实现中处理。
 
-（译者按：Swift和Objective-C的错误（error）类似于其他语言（例如Java，C#，Ruby，Python等）的异常，而Objective-C的异常（exception）则类似于其他语言的运行时错误。）
+（译者按：Swift和Objective-C的错误（error）类似于其他语言（例如Java，C#，Ruby，Python等）的异常，而Objective-C的异常（exception）则类似于其他语言的运行时错误（runtime error）。）
 
 ### 键值观察
 
 键值观察（key-value observing）是一种能在指定的属性发生变化的时候通知其他对象的机制。只要Swift类是继承自`NSObject`的，它就可以使用键值观察。你可以通过如下三个步骤在Swift中实现键值观察。
 
-1. 为你要观察的属性加上`dynamic`修饰符。要了解更多关于`dynamic`的信息，请查看[使用动态分配](#使用动态分配)部分。
+1. 为你要观察的属性加上`dynamic`修饰符。要了解更多关于`dynamic`的信息，请查看[使用动态分配](#使用动态分配)章节。
 
 	``` swift
 	class MyObjectToObserve : NSObject {
@@ -1211,7 +1222,7 @@ class SerializedDocument : NSDocument {
 
 应用的响应链中的对象--也就是OS X中`NSResponder`和iOS中`UIResponder`的子类--都包含一个只读的`undoManager`属性，返回一个可选的`NSUndoManager`对象，这个对象管理应用的撤销栈（undo stack）。用户每触发一个动作，比如在控件中输入文本，或从列表中删除一个选中的行，就可以向撤销管理器（undo manager）注册一个撤销操作，以允许用户撤销这个操作的影响。撤销操作会记录回滚（conteract）操作所需的步骤，例如把控件的文本设定为其原始值，或把删除的项目重新加回列表中。
 
-`NSUndoManager`支持两种注册撤销操作的方式：一种是“简单撤销”，这种方式会执行一个带有一个对象参数方法。另一种是“基于动作对象的撤销”，这种方式能使用可接受任意数量、任意类型参数的`NSInvocation`对象，执行撤销操作。
+`NSUndoManager`支持两种注册撤销操作的方式：一种是“简单撤销”（simple undo），这种方式会执行一个带有一个对象参数方法。另一种是“基于动作对象的撤销”（invocation-based undo），这种方式能用可接受任意数量、任意类型参数的`NSInvocation`对象执行撤销操作。
 
 （译者按：这里把Invocation翻译成“动作对象”。在Cocoa中，Invocation是一个封装为对象的方法，可以由其他对象用它触发一个预定义的动作。）
 
@@ -1241,7 +1252,7 @@ Swift中定义的属性，你可以在`willSet`观察方法中，以`self`作为
 @IBOutlet var notesLabel: NSTextView!
 
 var notes: String {
-	willSet{
+	willSet {
 		undoManager?.registerUndoWithTarget(self, selector: "setNotes:", object: self.title)
 		undoManager?.setActionName(NSLocalizedString("todo.notes.update", comment:"Update Notes"))
 	}
@@ -1252,7 +1263,7 @@ var notes: String {
 }
 ```
 
-对于接受多个参数的方法，你可以使用`NSInvocation`创建一个撤销操作，用于触发一个接受多个参数的方法，把应用恢复操作前的状态：
+对于接受多个参数的方法，你可以使用`NSInvocation`创建一个撤销操作，用于触发一个接受多个参数的方法，把应用恢复成操作前的状态：
 
 ``` swift
 @IBOutlet var remainingLabel: NSTextView!
@@ -1271,13 +1282,13 @@ func markTask(task: Task asComplete complete: Bool) {
 }
 ```
 
-`prepareWithInvocationTarget(_:)方法返回指定`target`的一个代理对象。通过把它转成`ToDoListViewController`，使它能直接响应`markTask(_:asCompleted)`调用。
+`prepareWithInvocationTarget(_:)方法返回指定`target`的代理对象。通过把它转成`ToDoListViewController`，使它能直接响应`markTask(_:asCompleted)`调用。
 
 要了解更多信息，请参阅“The Undo Architecture Programming Guide”文档。
 
 ### 目标-动作
 
-目标-动作模式是Cocoa中一个常用的设计模式，这种模式下，在事件发生时，一个对象会发送消息给另一个对象。目标-动作模式在Swift和Objective-C中极其相似。在Swift中，你使用`Selector`类型来表示Objective-C的方法选择器。要查看关于目标-动作的Swift代码实例，请查看[Objective-C的方法选择器](#Objective-C的方法选择器)部分。
+目标-动作（target-action）模式是Cocoa中一个常用的设计模式，这种模式下，在事件发生时，一个对象会发送消息给另一个对象。目标-动作模式在Swift和Objective-C中极其相似。在Swift中，你使用`Selector`类型来表示Objective-C的方法选择器。要查看关于目标-动作的Swift代码实例，请查看[Objective-C的方法选择器](#Objective-C的方法选择器)章节。
 
 ### 单例模式
 
@@ -1297,7 +1308,7 @@ func markTask(task: Task asComplete complete: Bool) {
 }
 ```
 
-在Swift中，你只需使用一个静态属性就能确保这个属性只被懒惰初始化一次，即便是在多个线程中被同时访问：
+在Swift中，你只需使用一个静态属性就能确保这个属性只被懒惰初始化一次，即使是在多个线程中被同时访问：
 
 ``` swift
 class Singleton {
@@ -1305,7 +1316,7 @@ class Singleton {
 }
 ```
 
-如果你需要在初始化时，做一些额外的设置，你可以为这个全局常量赋值闭包的执行结果：
+如果你需要在初始化时做一些额外的设置，你可以为这个全局常量赋值闭包的执行结果：
 
 ``` swift
 class Singleton {
@@ -1347,7 +1358,7 @@ else {
 
 要了解更多关于“类型转换”的信息，请查看“Swift编程语言（Swift 2.1版）”。
 
-检查或转换协议，与检查和转换类使用完全相同的语法。下面就是一个使用`as?`操作符检查对象是否遵守协议的一个例子：
+检查和转换成协议对象，与检查和转换类的对象使用完全相同的语法。下面就是一个使用`as?`操作符检查对象是否遵守协议的一个例子：
 
 ``` swift
 if let dataSource = object as? UITableViewDataSource {
@@ -1388,7 +1399,7 @@ struct Venue {
 }
 ```
 
-这个能处理`Venue`实例的应用，在和网络服务器通讯的时候，获得了JSON格式的地点数据，如下：
+假设某个应用能处理`Venue`实例。应用在和网络服务器通讯的时候，获得了JSON格式的地点数据，如下：
 
 ``` json
 {
@@ -1420,7 +1431,7 @@ init?(attributes: [String: AnyObject]) {
 }
 ```
 
-包含多个可选类型值绑定表达式的`guard`语句保证了`attributes`参数从预期的文件格式中获得了所有必要的信息。如果任意一个可选类型值绑定表达式在为常量赋值时失败了，`guard`语句会立刻停止执行其他语句，并转跳到`else`分支，返回`nil`。
+包含多个可选值绑定表达式（optional-binding expression）的`guard`语句保证了`attributes`参数从预期的文件格式中获得了所有必要的信息。如果任意一个可选类型值的绑定表达式在为常量赋值时失败了，`guard`语句会立刻停止执行其他语句，并转跳到`else`分支，返回`nil`。
 
 你现在就可以用一组JSON格式的数据，通过`NSJSONSerialization`类创建的对象，传给`Venue`的构造方法来创建`venue`对象了：
 
@@ -1436,9 +1447,9 @@ print(venue.name)
 
 #### 验证序列化数据
 
-在前面的例子中，`Venue`的构造函数在所有的必须的信息都提供的情况下，可选地返回一个实例。否则，构造器会简单的返回`nil`。
+在前面的例子中，`Venue`的构造函数在所有必须的信息都提供的情况下，可选地返回一个实例。否则，构造器会简单的返回`nil`。
 
-如果可以知道一组给定的数据为何不能创建有效实例的原因，通常会很有用。要实现这一点，你需要把这个可失败的构造方法重构为一个可抛出错误的构造方法：
+如果可以知道一组给定的数据为何不能创建有效实例的原因的话，通常会很有用。要实现这一点，你需要把这个可失败的构造方法重构为一个可抛出错误的构造方法：
 
 ``` swift
 enum ValidationError : ErrorType {
@@ -1474,9 +1485,9 @@ init(attributes [String: AnyObject]) throws {
 }
 ```
 
-这个构造方法没有用一条`guard`语句处理所有`attributes`的值，而是分别检查了每个值，并在值不存在或不合法的时候抛出一个错误。
+这个构造方法没有只用一条`guard`语句处理所有`attributes`的值，而是分别检查了每个值，并在值不存在或不合法的时候抛出一个错误。
 
-例如，如果JSON没有包含键为`name`的值，那么这个构造器会抛出`ValicationError.Missing`枚举值，并把对应的`"name"`字段作为枚举的关联值：
+例如，如果JSON没有包含键为`name`的值，那么这个构造方法会抛出`ValicationError.Missing`枚举值，并把对应的`"name"`字段作为枚举的关联值（associated value）：
 
 ``` json
 {
@@ -1501,7 +1512,7 @@ do {
 // 打印 “Missing Field: name”
 ```
 
-或者，如果JSON包含了所有必需的字段，但是`"category"`键的值不匹配`Category`枚举中定义的值的`rawValue`，那么这个构造方法会抛出`ValicationError.Invalid`枚举值，并把对应的`"category"`字段作为枚举的关联值：
+如果JSON包含了所有必需的字段，但是`"category"`键的值不匹配`Category`枚举中定义的值的`rawValue`，那么这个构造方法会抛出`ValicationError.Invalid`枚举值，并把对应的`"category"`字段作为枚举的关联值：
 
 ``` json
 {
@@ -1529,7 +1540,7 @@ do {
 
 ### API可用性
 
-某些类和方法并非在你的应用支持的所有版本和所有平台上都可用。要保证你的应用能够你的应用能够使用任何功能的缺失，你需要检查API的可用性。
+某些类和方法并非在应用支持的所有版本和所有平台上都可用。要保证应用能够应对任何功能缺失，你需要检查API的可用性。
 
 在Objective-C中，我们使用`respondesToSelector:`和`instancesRespondToSelector:`方法来检查类方法或实例方法的可用性。如果不检查，方法调用会抛出`NSInvalidArgumentException`，“unrecognized selector sent to instance”（向实例发送了无法识别的方法选择器）异常。例如，`CLLocationManager`的`requestWhenInUseAuthorization`实例方法从iOS 8.0和OS X 10.0才开始可用：
 
@@ -1542,7 +1553,7 @@ else {
 }
 ```
 
-在Swift中，调用一个不是在所有目标平台版本上可用的方法会引发一个编译时错误。
+在Swift中，调用一个不是在所有目标平台和版本上都可用的方法会引发一个编译时错误。
 
 下面是前述例子的Swift代码：
 
@@ -1552,7 +1563,7 @@ locationManager.requestWhenInUseAuthorization()
 // 错误：只在iOS 8.0或更新的系统中可用。
 ```
 
-如果应用的目标iOS版本早于8.0，OS X的目标版本早于10.0，`requestWhenInUseAuthorization()`方法是不可用的，因此编译器会汇报一个错误。
+如果应用的目标iOS版本早于8.0，目标OS X的版本早于10.0，`requestWhenInUseAuthorization()`方法是不可用的，那么编译器会汇报一个错误。
 
 Swift代码可以在运行时检查API可用性。可用性检查可以在`if`，`guard或`when`等条件语句中使用。
 
@@ -1565,7 +1576,7 @@ if #available(iOS 8.0, OSX 10.0, *) {
 }
 ```
 
-或者，你也可以使用`guard`语句检查可用性，除非当前的运行平台满足要求，否则跳出代码块。这种方法简化了判断不同平台能力的处理逻辑。
+你也可以使用`guard`语句检查可用性，除非当前的运行平台满足要求，否则跳出代码块。这种方法简化了判断不同平台能力的处理逻辑。
 
 ``` swift
 let locationManager = CLLocationManager()
@@ -1605,7 +1616,7 @@ func useShinyNewFeature() {
 
 ### 处理命令行参数
 
-在OS X上，你通常是通过单击击Dock或LaunchPad上的应用图标、或双击Finder中的应用图标来打开一个应用的。不过，你也可以从终端用程序打开一个应用，并给它传递命令行参数。
+在OS X上，你通常是通过单击Dock或LaunchPad上的应用图标、或双击Finder中的应用图标来打开一个应用的。不过，你也可以从终端用程序打开一个应用，并给它传递命令行参数。
 
 你可以通过访问`Process.arguments`类属性来得到一个包含了所有在启动时指定的命令行参数的列表。这种方式与访问`NSProcessInfo.processInfo()`的`argument`属性是等效的。
 
@@ -1630,7 +1641,7 @@ for argument in Process.arguments {
 
 ### 基本类型
 
-Swift提供了与C语言基本整数类型--比如，`char`，`int`，`float`，和`double`的等价类型。不过这些类型不会通过隐式转换转成Swift的整形，如`Int`。因此，只有在你的代码对这些类型有特殊需求时才使用它们，否则，请总是使用`Int`。
+Swift提供了与C语言基本整数类型等价的类型--比如，`char`，`int`，`float`，和`double`。不过这些类型不会通过隐式转换转成Swift的整型，如`Int`。因此，只有在你的代码对这些类型有特殊需求时才使用它们，否则，请总是使用`Int`。
 
 <table>
 	<tr><td><strong>C类型</strong></td><td><strong>Swift类型</strong></td></tr>
@@ -1684,7 +1695,7 @@ enum UITableViewCellStyle: Int {
 let cellStyle: UITableViewCellStyle = .Default
 ```
 
-不是用NS_ENUM或NS_OPTIONS宏标记的C的枚举类型会被Swift导入为结构体。C枚举的每个成员都被导入为一个类型为结构体的全局只读计算属性--不是成为Swift结构体本身的成员。
+不是用NS_ENUM或NS_OPTIONS宏标记的C的枚举类型会被Swift导入为结构体。C枚举的每个成员都被导入为一个类型为该结构体的全局只读计算属性--而不是成为Swift结构体的成员。
 
 例如，下面这个C枚举不是用`NS_ENUM`宏声明的。
 
@@ -1707,11 +1718,11 @@ var ErrorFileNotFound: Error { get }
 var ErrorInvalidFormat: Error { get }
 ```
 
-Swift会为导入的C结构体类型自动生成遵守`Equatable`协议的实现代码。
+Swift会为导入的C枚举类型自动生成遵守`Equatable`协议的实现代码。
 
 ### 选项集
 
-Swift也会把用`NS_OPTIONS`宏标记的C语言枚举类型，导入为Swift的选项集（option set）。选项集会与枚举类型一样，导入后会移除选项值名字中的前缀。
+Swift也会把用`NS_OPTIONS`宏标记的C语言枚举类型，导入为Swift的选项集（option set）。选项集与枚举类型一样，导入后会移除选项值名字中的前缀。
 
 比如，下面这个Objective-C选项声明：
 
@@ -1737,7 +1748,7 @@ struct NSJSONReadingOptions : OptionSetType {
 
 在Objective-C中，选项集是一个位掩码的整数值。你使用按位或（bitwise OR）操作符（`|`）来组合选项值，用按位与（bitwise AND）操作符（`&`）来检查选项值。你可以用一个常量或表达式创建一个新的选项集，空的选项集用常数零（`0`）来表示。
 
-在Swift中，选项集用遵守`OptionalSetType`协议的结构体表示，选项用静态成员表示。选项集的行为与Swift的`Set`集合类型类似。你可以使用`insert(_:)`或`unionInPlace(_:)`方法添加选项值，使用`remove(_:)`或`substractInPlace(_:)`方法移除选项值，使用`contains(_:)`方法检查选项值。你可以使用一个数组字面量创建一个选项集，使用类似枚举类型的点（`.`）前缀来访问选项值。空的选项值可以用一个空的数组字面量（`[]`），或默认构造方法创建。
+在Swift中，选项集用遵守`OptionalSetType`协议的结构体表示，选项用静态成员表示。选项集的行为与Swift的`Set`集合类型类似。你可以使用`insert(_:)`或`unionInPlace(_:)`方法添加选项值，使用`remove(_:)`或`substractInPlace(_:)`方法移除选项值，使用`contains(_:)`方法检查选项值。你可以使用一个数组字面量创建一个选项集，使用类似枚举类型的点（`.`）前缀来访问选项值。空的选项值可以用一个空的数组字面量（`[]`）或默认构造方法创建。
 
 ``` swift
 let options: NSDataBase64EncodingOptions = [
@@ -1749,13 +1760,15 @@ let string = data.base64EncodedStringWithOptions(options)
 
 ### 联合体
 
-Swift仅部分支持C语言的`union`类型。当导入包含联合体的C的聚合数据类型（C aggregates）是，Swift是无法访问不受支持的字段的。不过如果C或Objective-C API的参数或返回值包含联合体类型，那么它们是可以在Swift中使用的。
+Swift仅部分支持C语言的`union`（联合体）类型。导入包含联合体的C的聚合数据类型（C aggregates）时，Swift是无法访问不受支持的字段的。不过如果C或Objective-C API的参数或返回值包含联合体类型，那么它们是可以在Swift中使用的。
 
-（译者按：C aggregates翻译为聚合数据类型是参考了[维基百科](https://zh.wikipedia.org/wiki/%E7%BB%93%E6%9E%84%E4%BD%93_%28C%E8%AF%AD%E8%A8%80%29)）
+（译者按：C aggregates翻译为“聚合数据类型”参考了[维基百科](https://zh.wikipedia.org/wiki/%E7%BB%93%E6%9E%84%E4%BD%93_%28C%E8%AF%AD%E8%A8%80%29)）
 
 ### 位域
 
-Swift把结构体的位域，比如Foundation框架的`NSDecimal`类型中能找到的那些，导入为计算属性。当访问对应某个位域的计算属性时，Swift会自动把该值与兼容的Swift类型互相转换。
+Swift把结构体的位域（bit field），比如Foundation框架的`NSDecimal`类型中能找到的那些，导入为计算属性。当访问对应某个位域的计算属性时，Swift会自动把该值与兼容的Swift类型互相转换。
+
+（译者按：位域是一种特殊的结构体。）
 
 ### 指针
 
@@ -1920,7 +1933,7 @@ takeAPointer(&x)
 
 C函数指针会作为闭包导入Swift，闭包遵循C函数指针的调用惯例，并以`@convention(c)`注解标记。例如，一个类型为`int(*)(void)`的C函数指针导入Swift后成为`@convention(c) () -> Int32`。
 
-当调用接受函数指针作为参数的函数时，你可以传一个顶层（top-level）的Swift函数，一个闭包字面量或nil。以Core Foundation的`CFArrayCreateMutable(_:_:_:)`函数作为例子，`CFArrayCreateMutable(_:_:_:)`接受一个`CFArrayCallBacks`结构体，这个结构体在初始化时需要函数指针用于回调：
+调用接受函数指针作为参数的函数时，你可以传一个顶层（top-level）的Swift函数，一个闭包字面量或`nil`。以Core Foundation的`CFArrayCreateMutable(_:_:_:)`函数作为例子，`CFArrayCreateMutable(_:_:_:)`接受一个`CFArrayCallBacks`结构体，这个结构体在初始化时需要函数指针用于回调：
 
 ``` swift
 func customCopyDescription(p: UnsafePointer<Void>) -> Unmanaged<CFString>! {
@@ -1981,11 +1994,11 @@ if setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &optval, optlen) == 0 {
 
 ### 预处理指令
 
-Swift编译器不包含与处理器。作为替代，它能利用编译时（compile-time）参数，构建配置（build configuration）和语言特性来实现相同的功能。因此预处理指令并不会导入Swift。
+Swift编译器不包含预处理器。作为替代，它能利用编译时（compile-time）参数，构建配置（build configuration）和语言特性来实现相同的功能。因此预处理指令不会导入Swift。
 
 #### 简单的宏
 
-在C和Objective-C中，用`#define`指令创建一个基本常量的地方，在Swift中，你可以通过定义全局常量来代替。例如，这个常量定义：`#define FADE_ANIMATION_DURATION 0.35`，在Swift中用`let FADE_ANIMATION_DURATION = 0.35`来表示。因为简单的类似常量的宏定义在Swift中会直接映射为全局变量，编译器会自动导入C和Objective-C源码中的简单的宏定义。
+在C和Objective-C中用`#define`指令创建一个基本常量的地方，在Swift中你可以通过定义全局常量来代替。例如，这个常量定义：`#define FADE_ANIMATION_DURATION 0.35`，在Swift中用`let FADE_ANIMATION_DURATION = 0.35`来表示。因为简单的类似常量的宏定义在Swift中会直接映射为全局变量，所以编译器会自动导入C和Objective-C源码中的简单的宏定义。
 
 #### 复杂的宏
 
@@ -2027,4 +2040,6 @@ Swift代码和Objective-C代码通过不同的手段进行条件编译。Swift�
 #endif
 ```
 
-与C语言预处理起的条件编译指令不同的是，条件编译语句包围的代码块必需是自包含的，而且在语法上是合法的。这是因为所有的Swift代码都会经过语法检查，甚至是那些不会被编译的代码。
+与C语言预处理起的条件编译指令不同的是，条件编译语句包围的代码块必需是自包含的，而且在语法上是合法的。这是因为所有的Swift代码都会经过语法检查--甚至是那些不会被编译的代码。
+
+[< 开始](./1_开始.html#开始) | [目录](./0_目录.html) | [混合编程 >](./3_混合编程.html)

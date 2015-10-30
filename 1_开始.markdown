@@ -58,3 +58,5 @@ import Foundation
 把Swift导入Objective-C的模型与把Objective-C导入Swift类似。Swift通过Swift模块从框架中暴露它的API。与这些模块一起的是生成的Objective-C头文件。这些头文件声明了能映射回Objective-C的API。某些Swift API无法映射回Objective-C，因为它们利用了Objective-C中没有的语言特性。
 
 要获得更多关于如何在Objective-C中使用Swift的信息，可以查看[同一个项目中的Swift和Objective-C](./3_混合编程.html#同一个项目中的Swift和Objective-C)章节。
+
+[目录](./0_目录.html) | [互操作性 >](./2_互操作性.html)

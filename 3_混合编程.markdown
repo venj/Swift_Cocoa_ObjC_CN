@@ -2,13 +2,13 @@
 
 ## 在同一个项目中使用Swift和Objective-C
 
-Swift与Objective-C的兼容性，能让你创建一个同时包含这两种语言代码文件的项目。你可以使用这个特性，也就是*混合编程（mix and match）*，来编写混合语言（mixed-language）代码的应用。使用混合编程，你可以使用最新的Swift的特性实现程序的部分功能，同时把这部分功能整合回你已有的Objective-C代码库（codebase）。
+Swift与Objective-C的兼容性，能让你创建一个同时包含这两种语言代码文件的项目。你可以使用这个特性，也就是*混合编程*（mix and match），来编写混合语言（mixed-language）代码的应用。使用混合编程，你可以使用最新的Swift的特性实现程序的部分功能，同时把这部分功能整合回你已有的Objective-C代码库（codebase）。
 
 ### 混合编程概览
 
 Objective-C和Swift的文件可以在同一个项目中共存，不论该项目最初是一个Objective-C项目还是Swift项目。你可以为现存的项目添加另一种语言的文件。这种自然的工作流使得创建混合语言的应用和框架，跟创建单一语言的应用或框架一样简单。
 
-操作混合语言项目（target）的过程，取决于是应用项目，还是框架项目而略有差异。在同一个项目中使用两种语言的基本文件导入模型参见下图，后续的章节中将对细节进行详述。
+处理混合语言项目（target）的过程，取决于是应用项目还是框架项目而略有差异。在同一个项目中使用两种语言的基本文件导入模型参见下图，后续的章节中将对细节进行详述。
 
 （译者按：target是一个编译目标。通常，一个项目会包含一个或多个编译目标。为了语句通顺，在翻译target的时候，为了便于理解，在不会产生误解的时候，我会根据语境，把target翻译成编译目标或项目。）
 
@@ -55,7 +55,7 @@ myCell.subtitle = "A custom cell"
 
 ### 把Swift导入Objective-C
 
-当你把Swift代码导入Objective-C时，你是靠*Xcode生成的头文件*把它们暴露给Objective-C的。这个自动生成的文件时一个Objective-C头文件，声明了编译目标中Swift代码的接口。你可以认为它是Swift代码的综合头文件（umbrella header）。这个头文件的名字是产品模块名加上`"-Swift.h"`。（你将在[给产品模块命名](#给产品模块命名)章节学到更多关于产品模块名的信息。）
+当你把Swift代码导入Objective-C时，你是靠*Xcode生成的头文件*把它们暴露给Objective-C的。这个自动生成的文件是一个Objective-C头文件，声明了编译目标中Swift代码的接口。你可以认为它是Swift代码的综合头文件（umbrella header）。这个头文件的名字是产品模块名加上`"-Swift.h"`。（你将在[给产品模块命名](#给产品模块命名)章节学到更多关于产品模块名的信息。）
 
 默认条件下，生成的头文件包含了Swift文件中有`public`修饰符的声明。如果应用编译目标包含了Objective-C桥接头文件，那么这个文件还包含所有使用`internal`修饰符的声明。使用`private`修饰符标记的声明不会出现在生成的头文件中。除非显式地使用`@IBAction`，`@IBOutlet`或`@objc`做了标记，否则私有的声明不会暴露给Objective-C。如果应用编译目标启用了测试，并且产品模块的导入语句加上了`@testable`修饰符，那么单元测试编译目标可以访问任何用`internal`修饰符标记的声明，就好像它们是用`public`修饰符标记的一样。
 
@@ -98,7 +98,7 @@ myCell.subtitle = "A custom cell"
 	#import <XYZ/XYZCustomViewController.h>
 	```
 
-3. Swift能看到所有公开暴露在在综合头文件中的头文件。在框架中的Objective-C文件就自动对框架中的所有Swift文件可用了而无需额外的导入声明。你可以像使用系统类那样，用Swift的语法调用你自己的Objective-C代码。
+3. Swift能看到所有公开暴露在综合头文件中的头文件，框架中的Objective-C文件会自动对框架中的所有Swift文件可用，无需额外的导入声明。你可以像使用系统类那样，用Swift的语法调用你自己的Objective-C代码。
 
 ``` swift
 let myOtherCell = XYZCustomCell()
@@ -109,7 +109,7 @@ myOtherCell.subtitle = "Another custom cell"
 
 要在同一框架目标中的Objective-C代码中使用Swift文件，你无需在综合头文件中导入任何文件。你只需在任何需要使用Swift代码的Objective-C的`.m`文件中导入Xcode生成的头文件。
 
-因为框架目标的生成的头文件的是框架公开接口的一部分，因此只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C中访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
+因为框架目标的生成的头文件的是框架公开接口的一部分，因此只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C能访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
 
 ##### 把同一个编译框架中的Swift代码导入Objective-C
 
@@ -130,7 +130,7 @@ myOtherCell.subtitle = "Another custom cell"
 
 ### 导入外置框架
 
-你可以在纯Objective-C代码库（codebase）、纯Swift代码库，或混合语言的代码库中导入外置框架（external framework）。无论外置框架是用一种语言编写，还是同时包含了两种语言的文件，导入的过程都是一样的。当你导入外置框架的时候，请确保框架的编译设置中的Define Module的值设置成了“Yes”。
+你可以在纯Objective-C代码库（codebase）、纯Swift代码库，或混合语言的代码库中导入外置框架（external framework）。无论外置框架是用一种语言编写，还是同时包含了两种语言的文件，导入的过程都是一样的。当你导入外置框架的时候，请确保框架的Build Settings中的Define Module的值设置成了“Yes”。
 
 你可以在其他编译目标中的任何Swift文件中使用如下语法导入框架：
 
@@ -218,7 +218,7 @@ Swift类或协议必需使用`@objc`注解标记，才能在Objective-C中访问
 
 Swift编译器会自动把Objective-C代码自动导入为常规的Swift代码。它会把Objective-C类的工厂方法导入为Swift的构造方法，截断Objective-C的枚举类型值的名字。
 
-可能有极少数的情况下，你的代码会无法自动处理。如果你需要修改导入Swift的Objective-C的方法，枚举值，或者选项组的值的名字，你可以使用`NS_SWIFT_NAME`宏来自定义如何导入声明。
+可能有极少数的情况下，你的代码会无法自动处理。如果你需要修改导入Swift的Objective-C的方法，枚举值，或者选项组的值的名字，你可以使用`NS_SWIFT_NAME`宏自定义如何导入声明。
 
 #### 类的工厂方法
 
@@ -264,7 +264,7 @@ typedef NS_ENUM(NSInteger, ABCRecordSide) {
 你可以对Objective-C的方法声明使用`NS_REFINED_FOR_SWIFT`宏，并在一个扩展中提供一个改进的Swift接口，原始实现在改进的接口中可被调用。例如，一个接受多于一个指针参数的Objective-C方法可以在Swift中改进为返回一个元组值。
 
 - 构造方法在导入Swift时，在第一个外置参数名前加上了双下划线（`__`）前缀。
-- 只要取值方法或赋值方法的任意一个使用了`NS_REFINED_FOR_SWIFT`标记，对象的下标取值方法就会被导入成Swift的方法，方法名是添加了双下划线（`__`）前缀的基本名，而不是Swift的下标（subscript）。
+- 只要下标方法或赋值方法的任意一个使用了`NS_REFINED_FOR_SWIFT`标记，对象的下标取值方法就会被导入成Swift的方法，方法名是添加了双下划线（`__`）前缀的基本名，而不是Swift的下标（subscript）。
 - 其他方法会被导入为名字前加上了双下划线（`__`）的方法。
 
 对于下面这个Objective-C声明：
@@ -296,9 +296,9 @@ extension Color {
 
 ### 给产品模块命名
 
-Xcode为Swift代码生成的头文件的名字，以及Xcode为你创建的Objective-C桥接头文件，是根据产品模块的名字生成的。默认情况下，产品模块名和产品名是一样的。不过如果产品名包含了非字母和数字字符，例如英文句号（`.`），在产品模块名中它们会被替换成下划线（`_`）。如果名字以数字开头，那么第一个数字也会被替换成下划线。
+Xcode为Swift代码生成的头文件的名字、以及Xcode为你创建的Objective-C桥接头文件的名字，是根据产品模块的名字生成的。默认情况下，产品模块名和产品名是一样的。不过如果产品名包含了非字母和数字字符，例如英文句号（`.`），在产品模块名中它们会被替换成下划线（`_`）。如果名字以数字开头，那么第一个数字也会被替换成下划线。
 
-你也可以为产品模块名提供一个自定义的名字。Xcode会用它命名桥接头文件和生成的头文件。要修改产品模块名，你只需修改构建设置（Build Settings）中Product Module Name参数的值。
+你也可以给产品模块名提供一个自定义的名字。Xcode会用它命名桥接头文件和生成的头文件。要修改产品模块名，你只需修改构建设置（Build Settings）中Product Module Name参数的值。
 
 > **提示**
 >
@@ -311,8 +311,10 @@ Xcode为Swift代码生成的头文件的名字，以及Xcode为你创建的Objec
 - 如果需要使用Objective-C的桥接头文件，请确保构建设置（Build Settings）的Swift Compiler - Code Generation部分的Objective-C Bridging Header（`SWIFT_OBJC_BRIDGING_HEADER`）参数的值被设置为桥接头文件在项目中的相对路径（如，“MyApp/MyApp-Bridging-Header.h”）。
 - Xcode在命名Objective-C桥接头文件和Swift代码的生成的头文件时，使用的是产品模块名（`PRODUCT_MODULE_NAME`），而不是编译目标名（`TARGET_NAME`）。要了解更多关于产品模块命名的信息，请参阅[给产品模块命名](#给产品模块命名)章节。
 - 要在Objective-C中可以访问和使用，Swift类必需派生自一个Objective-C类或者必须使用`@objc`标记。
-- 当你把Swift代码导入到Objective-C中时，请牢记，Objective-C无法转译部分Swift特有的特性。要查看这个列表，请查看[把Swift导入Objective-C](#把Swift导入Objective-C)部分。
+- 当你把Swift代码导入到Objective-C中时，请牢记，Objective-C无法转译部分Swift特有的特性。要查看这个列表，请查看[把Swift导入Objective-C](#把Swift导入Objective-C)章节。
 - 如果你在Swift代码中使用了你自己创建的的Objective-C类，那么请确保在Objective-C的`.m`文件导入Swift生成的头文件之前，先导入自定义类型的Objective-C头文件。
 - 使用`private`修饰符标记的声明不会出现在生成的头文件中。除非显式地使用`@IBAction`，`@IBOutlet`或`@objc`做了标记，否则私有的声明不会暴露给Objective-C。
 - 对于应用编译目标，如果包含了Objective-C的桥接头文件，使用`internal`修饰符标记的声明会出现在生成的头文件中。
 - 对于框架编译目标，只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C中访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
+
+[< 互操作性](./2_互操性.html#开始) | [目录](./0_目录.html) | [混合编程 >](./4_迁移到Swift.html)
