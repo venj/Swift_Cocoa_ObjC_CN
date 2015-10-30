@@ -59,4 +59,4 @@ import Foundation
 
 要获得更多关于如何在Objective-C中使用Swift的信息，可以查看[同一个项目中的Swift和Objective-C](./3_混合编程.markdown#同一个项目中的Swift和Objective-C)章节。
 
-[目录](./0_目录.markdown) | [互操作性 >](./2_互操作性.markdown)
+[目录](./0_目录.markdown) | [2. 互操作性 >](./2_互操作性.markdown)

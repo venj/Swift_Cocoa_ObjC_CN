@@ -56,4 +56,4 @@ var enabled: Bool {
 - Command-点击一个Swift类名，可以查看它的生成的头文件（generated header）。
 - Option-点击一个符号，可以查看它的基本信息，例如，类型、参数以及文档注释。
 
-[< 混合编程](./3_混合编程.markdown) | [目录](./0_目录.markdown)
+[< 3. 混合编程](./3_混合编程.markdown) | [目录](./0_目录.markdown)
