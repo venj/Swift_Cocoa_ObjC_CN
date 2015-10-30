@@ -23,7 +23,7 @@ Swift被设计成可以跟Cocoa和Objective-C无缝兼容。你可以在Swift中
 
 ![图1.1 项目模版](./pics/pic_1.1.png)
 
-Swift项目的结构与Objective-C项目几乎完全一样，除了一个重要的区别：Swift没有头文件。Swift在接口和实现之间没有明确的界线，因此关于类、函数或常量的所有信息都包含在`.swift`文件之中。“[在同一个项目中使用Swift和Objective-C](./3_混合编程.html#在同一个项目中使用Swift和Objective-C)”章节将对此进行详述
+Swift项目的结构与Objective-C项目几乎完全一样，除了一个重要的区别：Swift没有头文件。Swift在接口和实现之间没有明确的界线，因此关于类、函数或常量的所有信息都包含在`.swift`文件之中。“[在同一个项目中使用Swift和Objective-C](./3_混合编程.markdown#在同一个项目中使用Swift和Objective-C)”章节将对此进行详述
 
 现在，你就可以开始试着在app delegate里编写Swift代码了。你也可以通过选择 File > New > File > (iOS, watchOS, tvOS或OS X) > Source > Swift 创建一个新的Swift文件开始编码。
 
@@ -49,7 +49,7 @@ import Foundation
 - 部分Objective-C的核心数据类型重映射到Swift中的替代类型，例如`NSString`映射为`String`
 - 部分Objective-C中的概念映射为Swift中相应的概念，例如把指针映射为可选类型（Optional）
 
-要获得更多关于如何在Swift中使用Objective-C的信息，请参阅[与Objective-C API交互](./2_互操作性.html#与Objective-C API交互)。
+要获得更多关于如何在Swift中使用Objective-C的信息，请参阅[与Objective-C API交互](./2_互操作性.markdown#与Objective-C API交互)。
 
 > **提示**
 >
@@ -57,6 +57,6 @@ import Foundation
 
 把Swift导入Objective-C的模型与把Objective-C导入Swift类似。Swift通过Swift模块从框架中暴露它的API。与这些模块一起的是生成的Objective-C头文件。这些头文件声明了能映射回Objective-C的API。某些Swift API无法映射回Objective-C，因为它们利用了Objective-C中没有的语言特性。
 
-要获得更多关于如何在Objective-C中使用Swift的信息，可以查看[同一个项目中的Swift和Objective-C](./3_混合编程.html#同一个项目中的Swift和Objective-C)章节。
+要获得更多关于如何在Objective-C中使用Swift的信息，可以查看[同一个项目中的Swift和Objective-C](./3_混合编程.markdown#同一个项目中的Swift和Objective-C)章节。
 
-[目录](./0_目录.html) | [互操作性 >](./2_互操作性.html)
+[目录](./0_目录.markdown) | [互操作性 >](./2_互操作性.markdown)

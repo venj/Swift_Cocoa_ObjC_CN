@@ -16,15 +16,15 @@
 
 - ✓ 通过菜单和对话框：File > New > File > (iOS, watchOS, tvOS, 或OS X) > Source > Swift 为对应的Objective-C的`.m`和`.h`文件创建一个Swift类。你可以使用与Objective-C类同样的名字，或使用一个不同的名字。类的前缀在Swift中是可选的。
 - ✓ 导入合适的系统框架。
-- ✓ 如果你需要在同一个编译目标下的Swift文件中访问Objective-C代码，请在桥接头文件中进行头文件导入。你可以参阅[从同一个应用编译目标中导入代码](./3_混合编程.html#从同一个应用编译目标中导入代码)部分获取相关指导。
-- ✓ 要让你的Swift类在Objective-C中可用，请让它继承自某个Objective-C类。把类用`@objc(<#name#>)`标记，让这个类在Objective-C使用时用一个特定的名字，其中`<#name#>`是Objective-C代码访问Swift类时使用的名字。要了解更多关于`@objc`的信息，请参阅[Swift类型的兼容性](./2_互操作性.html#Swift类型的兼容性)部分。
+- ✓ 如果你需要在同一个编译目标下的Swift文件中访问Objective-C代码，请在桥接头文件中进行头文件导入。你可以参阅[从同一个应用编译目标中导入代码](./3_混合编程.markdown#从同一个应用编译目标中导入代码)部分获取相关指导。
+- ✓ 要让你的Swift类在Objective-C中可用，请让它继承自某个Objective-C类。把类用`@objc(<#name#>)`标记，让这个类在Objective-C使用时用一个特定的名字，其中`<#name#>`是Objective-C代码访问Swift类时使用的名字。要了解更多关于`@objc`的信息，请参阅[Swift类型的兼容性](./2_互操作性.markdown#Swift类型的兼容性)部分。
 
 #### 迁移过程中
 
-- ✓ 通过让你的Swift类派生自Objective-C的类，或遵守Objective-C的协议等方式，使之具备Objective-C的行为。要了解更多信息，请参阅[编写具备Objective-C行为的Swift类](./2_互操作性.html#编写具备Objective-C行为的Swift类)。
-- ✓ 当你使用Objective-C的API时，你需要了解Swift如何转译Objective-C的语言特性。要了解更多信息，请参阅[与Objective-C API交互](./2_互操作性.html#与Objective-C API交互)。
-- ✓ 当你编写使用Cocoa框架的Swift代码时，请记住某些类型是被桥接的，这意味着你可以在某些使用Objective-C类型的地方用相应的Swift类型代替。要了解更多信息，请参阅[使用Cocoa数据类型](./2_互操作性.html#使用Cocoa数据类型)。
-- ✓ 在你把Cocoa设计模式应用到Swift代码中的时候，请参考[使用Cocoa设计模式](./2_互操作性.html#使用Cocoa设计模式)，了解关于如何转译常见的设计模式的信息。
+- ✓ 通过让你的Swift类派生自Objective-C的类，或遵守Objective-C的协议等方式，使之具备Objective-C的行为。要了解更多信息，请参阅[编写具备Objective-C行为的Swift类](./2_互操作性.markdown#编写具备Objective-C行为的Swift类)。
+- ✓ 当你使用Objective-C的API时，你需要了解Swift如何转译Objective-C的语言特性。要了解更多信息，请参阅[与Objective-C API交互](./2_互操作性.markdown#与Objective-C API交互)。
+- ✓ 当你编写使用Cocoa框架的Swift代码时，请记住某些类型是被桥接的，这意味着你可以在某些使用Objective-C类型的地方用相应的Swift类型代替。要了解更多信息，请参阅[使用Cocoa数据类型](./2_互操作性.markdown#使用Cocoa数据类型)。
+- ✓ 在你把Cocoa设计模式应用到Swift代码中的时候，请参考[使用Cocoa设计模式](./2_互操作性.markdown#使用Cocoa设计模式)，了解关于如何转译常见的设计模式的信息。
 - ✓ 要了解把Objective-C的属性转译到Swift中的注意事项，请阅读“Swift编程语言（Swift 2.1版）”的“属性”章节。
 - ✓ 使用`@objc(<#name#>)`注解可以在需要的时候，为属性和方法向Objective-C暴露特殊的名字。例如，你可以把一个名为`enabled`的属性，暴露给Objective-C时使用名为`isEnabled`的访问方法，你可以这样写：
 
@@ -41,7 +41,7 @@ var enabled: Bool {
 
 #### 收尾工作
 
-- ✓ 参考[从同一个应用编译目标中导入代码](./3_混合编程.html#从同一个应用编译目标中导入代码)中的描述，更新Objective-C代码中的导入语句（改为#import "ProductModuleName-Swift.h"）。
+- ✓ 参考[从同一个应用编译目标中导入代码](./3_混合编程.markdown#从同一个应用编译目标中导入代码)中的描述，更新Objective-C代码中的导入语句（改为#import "ProductModuleName-Swift.h"）。
 - ✓ 从编译目标中取消选择原来的Objective-C的`.m`文件的复选框，把它从编译目标中移除。不要立刻删除`.m`和`.h`文件；你可能需要用它们来进行问题诊断。
 - ✓ 如果你的Swift类使用了一个不同的类名，你需要更新你的代码，用Swift的类名替换Objective-C的类名。
 
@@ -52,8 +52,8 @@ var enabled: Bool {
 - 请记住，你不能在Objective-C中创建Swift类的子类。因此，在你的应用中，不能包含你要迁移的类的Objective-C子类。
 - 一旦你把一个类迁移到了Swift，你必须把相应的`.m`文件从编译目标中移除，以避免在编译时产生重复的符号错误。
 - Swift类要在Objective-C中访问和使用，这个类必须派生自Objective-C的类，或使用了`@objc`标记。
-- 当你把Swift代码用于Objective-C中时，请记住Objective-C不能转译某些Swift特有的特性。要了解哪些特性不可用，请参考[在Swift中使用Objective-C](./3_混合编程.html#在Swift中使用Objective-C)。
+- 当你把Swift代码用于Objective-C中时，请记住Objective-C不能转译某些Swift特有的特性。要了解哪些特性不可用，请参考[在Swift中使用Objective-C](./3_混合编程.markdown#在Swift中使用Objective-C)。
 - Command-点击一个Swift类名，可以查看它的生成的头文件（generated header）。
 - Option-点击一个符号，可以查看它的基本信息，例如，类型、参数以及文档注释。
 
-[< 混合编程](./3_混合编程.html) | [目录](./0_目录.html)
+[< 混合编程](./3_混合编程.markdown) | [目录](./0_目录.markdown)

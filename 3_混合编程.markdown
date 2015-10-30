@@ -158,7 +158,7 @@ MySwiftClass *swiftObject = [[MySwiftClass alloc] init];
 [swiftObject swiftMethod];
 ```
 
-Swift类或协议必需使用`@objc`注解标记，才能在Objective-C中访问。这个注解告诉编译器这段Swift代码可以在Objective-C中访问。如果Swift类是派生自Objective-C类，编译器会自动为你给它加上`@objc`注解。要了解更多信息，请参考[Swift类型的兼容性](./2_互操作性.html#Swift类型的兼容性)。
+Swift类或协议必需使用`@objc`注解标记，才能在Objective-C中访问。这个注解告诉编译器这段Swift代码可以在Objective-C中访问。如果Swift类是派生自Objective-C类，编译器会自动为你给它加上`@objc`注解。要了解更多信息，请参考[Swift类型的兼容性](./2_互操作性.markdown#Swift类型的兼容性)。
 
 你可以访问用`@objc`注解标记的类或协议中的一切，只要它与Objective-C兼容。除了下面列出的这些Swift特有的特性：
 
@@ -317,4 +317,4 @@ Xcode为Swift代码生成的头文件的名字、以及Xcode为你创建的Objec
 - 对于应用编译目标，如果包含了Objective-C的桥接头文件，使用`internal`修饰符标记的声明会出现在生成的头文件中。
 - 对于框架编译目标，只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C中访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
 
-[< 互操作性](./2_互操性.html#开始) | [目录](./0_目录.html) | [混合编程 >](./4_迁移到Swift.html)
+[< 互操作性](./2_互操性.markdown#开始) | [目录](./0_目录.markdown) | [混合编程 >](./4_迁移到Swift.markdown)

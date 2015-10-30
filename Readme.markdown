@@ -6,27 +6,11 @@
 
 本文档已经完成一次较对，欢迎提交勘误和改进的Pull Request。你也可以通过[给我买杯咖啡](#支持我)支持我。
 
-**目前生成的HTML文档中的链接锚点有些问题**
-
 ## 开始阅读
 
-[开始阅读](https://www.venj.me/usco/0_目录.html)
+你可以直接在github里阅读本文档。
 
-## 获取源码
-
-[获取源码](https://github.com/venj/Swift_Cocoa_ObjC_CN)
-
-## 生成HTML文档
-
-``` bash
-# 安装工具
-$ brew install node
-$ npm install -g markdown-styles
-
-# 生成文档
-$ (可选) rm -rf doc # 如果当前文件夹存在doc文件夹，先删除它
-$ generate-md --layout github --input . --output doc
-```
+[开始阅读](https://github.com/venj/Swift_Cocoa_ObjC_CN/blob/master/0_目录.markdown)
 
 ### 支持我
 
