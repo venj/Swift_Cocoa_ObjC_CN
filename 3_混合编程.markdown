@@ -74,7 +74,7 @@ myCell.subtitle = "A custom cell"
 编译目标中的Swift文件将会对包含上述导入语句的Objective-C的`.m`文件可见。要了解更多关于如何在Objective-C代码中使用Swift的信息，请参考[在Objective-C中使用Swift](在Objective-C中使用Swift)章节。
 
 <table>
-	<tr><td>&nbsp;</td><td><strong>导入至Swift</strong></td><td>导入至Objecitve-C</td></tr>
+	<tr><td>&nbsp;</td><td><strong>导入至Swift</strong></td><td><strong>导入至Objecitve-C</strong></td></tr>
 	<tr><td>Swift代码</td><td>无需导入语句</td><td><code>#import "ProductModuleName-Swift.h"</code></td></tr>
 	<tr><td>Objective-C代码</td><td>无需导入语句；需要Objecitve-C桥接头文件</td><td><code>#import "Header.h"</code></td></tr>
 </table>
@@ -123,8 +123,8 @@ myOtherCell.subtitle = "Another custom cell"
 框架中的Swift文件将会对含有上述导入语句的Objective-C的`.m`文件可见。要了解更多关于如何在Objective-C代码中使用Swift的信息，请参考[在Objective-C中使用Swift](在Objective-C中使用Swift)章节。
 
 <table>
-	<tr><td>&nbsp;</td><td><strong>导入至Swift</strong></td><td>导入至Objecitve-C</td></tr>
-	<tr><td>Swift代码</td><tr>无需导入语句</tr><tr><code>#import &lt;ProductName/ProductModuleName-Swift.h&gt;</code></tr></tr>
+	<tr><td>&nbsp;</td><td><strong>导入至Swift</strong></td><td><strong>导入至Objecitve-C</strong></td></tr>
+	<tr><td>Swift代码</td><td>无需导入语句</td><td><code>#import &lt;ProductName/ProductModuleName-Swift.h&gt;</code></td></tr>
 	<tr><td>Objective-C代码</td><td>无需导入语句；需要综合头文件</td><td><code>#import "Header.h"</code></td></tr>
 </table>
 
