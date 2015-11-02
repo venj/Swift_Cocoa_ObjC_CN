@@ -462,7 +462,7 @@ class MyViewController : UIViewController {
 }
 ```
 
-如果你的Swift类继承自Objective-C类，类中的所有的方法和属性都可以用作Objective-C的方法选择器。反之，如果你的Swift类并没有继承自Objective-C类，那么你需要使用`@objc`注解标注你想用作方法选择器的成员，就像在[Swift类型的兼容性](#Swift类型的兼容性)中描述的那样。
+如果你的Swift类继承自Objective-C类，类中的所有的方法和属性都可以用作Objective-C的方法选择器。反之，如果你的Swift类并没有继承自Objective-C类，那么你需要使用`@objc`注解标注你想用作方法选择器的成员，就像在[Swift类型的兼容性](#swift类型的兼容性)中描述的那样。
 
 #### 用performSelector来发送消息
 
@@ -1288,7 +1288,7 @@ func markTask(task: Task asComplete complete: Bool) {
 
 ### 目标-动作
 
-目标-动作（target-action）模式是Cocoa中一个常用的设计模式，这种模式下，在事件发生时，一个对象会发送消息给另一个对象。目标-动作模式在Swift和Objective-C中极其相似。在Swift中，你使用`Selector`类型来表示Objective-C的方法选择器。要查看关于目标-动作的Swift代码实例，请查看[Objective-C的方法选择器](#Objective-C的方法选择器)章节。
+目标-动作（target-action）模式是Cocoa中一个常用的设计模式，这种模式下，在事件发生时，一个对象会发送消息给另一个对象。目标-动作模式在Swift和Objective-C中极其相似。在Swift中，你使用`Selector`类型来表示Objective-C的方法选择器。要查看关于目标-动作的Swift代码实例，请查看[Objective-C的方法选择器](#objective-c的方法选择器)章节。
 
 ### 单例模式
 
