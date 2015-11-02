@@ -96,12 +96,12 @@
 		- [从同一个应用编译目标中导入代码](./3_混合编程.markdown#从同一个应用编译目标中导入代码)
 			+ [把Objective-C导入Swift](./3_混合编程.markdown#把objective-c导入swift)
 				- [把同一个编译目标中的Objective-C代码导入Swift](./3_混合编程.markdown#把同一个编译目标中的objective-c代码导入swift)
-		- [把Swift导入Objective-C](./3_混合编程.markdown#把swift导入objective-c)
+			+ [把Swift导入Objective-C](./3_混合编程.markdown#把swift导入objective-c)
 				- [把同一个编译目标中的Swift代码导入Objective-C](./3_混合编程.markdown#把同一个编译目标中的swift代码导入objective-c)
 		- [从同一个框架编译目标中导入代码](./3_混合编程.markdown#从同一个框架编译目标中导入代码)
 			+ [把Objective-C导入Swift](./3_混合编程.markdown#把objective-c导入swift)
 				- [把同一个框架中的Objective-C代码导入Swift](./3_混合编程.markdown#把同一个框架中的objective-c代码导入swift)
-		- [把Swift导入Objective-C](./3_混合编程.markdown#把swift导入objective-c)
+			+ [把Swift导入Objective-C](./3_混合编程.markdown#把swift导入objective-c)
 				- [把同一个编译框架中的Swift代码导入Objective-C](./3_混合编程.markdown#把同一个编译框架中的swift代码导入objective-c)
 		- [导入外置框架](./3_混合编程.markdown#导入外置框架)
 		- [在Objective-C中使用Swift](./3_混合编程.markdown#在objective-c中使用swift)
@@ -123,4 +123,4 @@
 			+ [收尾工作](./4_迁移到Swift.markdown#收尾工作)
 		- [问题诊断和注意事项](./4_迁移到Swift.markdown#问题诊断和注意事项)
 
-*文档生成于2015-11-02 13:52:22 +0800*
+*文档生成于2015-11-02 13:59:32 +0800*

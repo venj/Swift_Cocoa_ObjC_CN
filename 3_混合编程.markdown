@@ -53,7 +53,7 @@ let cell = XYZCustomCell()
 myCell.subtitle = "A custom cell"
 ```
 
-### 把Swift导入Objective-C
+#### 把Swift导入Objective-C
 
 当你把Swift代码导入Objective-C时，你是靠*Xcode生成的头文件*把它们暴露给Objective-C的。这个自动生成的文件是一个Objective-C头文件，声明了编译目标中Swift代码的接口。你可以认为它是Swift代码的综合头文件（umbrella header）。这个头文件的名字是产品模块名加上`"-Swift.h"`。（你将在[给产品模块命名](#给产品模块命名)章节学到更多关于产品模块名的信息。）
 
@@ -105,7 +105,7 @@ let myOtherCell = XYZCustomCell()
 myOtherCell.subtitle = "Another custom cell"
 ```
 
-### 把Swift导入Objective-C
+#### 把Swift导入Objective-C
 
 要在同一框架目标中的Objective-C代码中使用Swift文件，你无需在综合头文件中导入任何文件。你只需在任何需要使用Swift代码的Objective-C的`.m`文件中导入Xcode生成的头文件。
 
