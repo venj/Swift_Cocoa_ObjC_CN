@@ -1904,7 +1904,7 @@ takeAMutableVoidPointer(&b)
 当函数声明了接受一个`AutoreleasingUnsafeMutablePointer<Type>`参数时，它可以接受下面这几种类型的参数：
 
 - `nil`，传入一个空指针。
-- AutoreleasingUnsafeMutablePointer<Type>`值。
+- `AutoreleasingUnsafeMutablePointer<Type>`值。
 - `inout`表达式，其操作数会通过基础拷贝到一个临时的不拥有的（nonowning）缓存区。缓存区的地址接着传给被调用者，返回时，缓存区内的值被加载、保留（retain）并重新赋值给操作数。
 
 注意，上面的列表中不包含数组。
