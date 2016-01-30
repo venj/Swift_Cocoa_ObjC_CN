@@ -1,8 +1,10 @@
-# Using Swift with Cocoa and Objective-C (Swift 2.1) 中文版
+# Using Swift with Cocoa and Objective-C (Swift 2.2 Pre-release) 中文版
 
 ![封面](./cover.png)
 
 ## 说明
+
+WIP：针对Swift 2.2预发布版本的更新的翻译进行中。
 
 本文档的翻译虽然属于自娱自乐，但是也花了我一点时间。本人翻译水平有限，语句也多有不通。我在部分可能造成误解的地方做了些注解，希望我的翻译能把意思传达到。
 
