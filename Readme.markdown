@@ -14,7 +14,7 @@ Swift 2.1版在[这里](https://github.com/venj/Swift_Cocoa_ObjC_CN/tree/1.0)。
 
 ## 开始阅读
 
-你可以直接在github里阅读本文档。
+你可以直接在github里阅读最新版文档。
 
 [开始阅读](https://github.com/venj/Swift_Cocoa_ObjC_CN/blob/master/0_目录.markdown)
 
