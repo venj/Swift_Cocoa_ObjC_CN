@@ -4,9 +4,7 @@
 
 ## 说明
 
-*WIP：针对Swift 2.2预发布版本的更新的翻译进行中。*
-
-Swift 2.1版在[这里](https://github.com/venj/Swift_Cocoa_ObjC_CN/tree/1.0)。
+** WIP：已经根据文档更新历史把修改的部分翻译和修改完成。暂未校对。 **
 
 本文档的翻译虽然属于自娱自乐，但是也花了我一点时间。本人翻译水平有限，语句也多有不通。我在部分可能造成误解的地方做了些注解，希望我的翻译能把意思传达到。
 
@@ -17,6 +15,10 @@ Swift 2.1版在[这里](https://github.com/venj/Swift_Cocoa_ObjC_CN/tree/1.0)。
 你可以直接在github里阅读最新版文档。
 
 [开始阅读](https://github.com/venj/Swift_Cocoa_ObjC_CN/blob/master/0_目录.markdown)
+
+## 历史版本
+
+- [Swift 2.1版](https://github.com/venj/Swift_Cocoa_ObjC_CN/blob/1.0/0_目录.markdown)
 
 ### 支持我
 

@@ -59,7 +59,7 @@ myCell.subtitle = "A custom cell"
 
 默认条件下，生成的头文件包含了Swift文件中有`public`修饰符的声明。如果应用编译目标包含了Objective-C桥接头文件，那么这个文件还包含所有使用`internal`修饰符的声明。使用`private`修饰符标记的声明不会出现在生成的头文件中。除非显式地使用`@IBAction`，`@IBOutlet`或`@objc`做了标记，否则私有的声明不会暴露给Objective-C。如果应用编译目标启用了测试，并且产品模块的导入语句加上了`@testable`修饰符，那么单元测试编译目标可以访问任何用`internal`修饰符标记的声明，就好像它们是用`public`修饰符标记的一样。
 
-要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
+要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.2版）”的“访问控制”章节。
 
 要创建生成的头文件，你不需要做任何事--只需在要使用它的Objective-C代码中导入这个头文件。需要注意的是，生成的头文件中的Swift接口会包含所有在你的Swift代码中用到的Objective-C类型的引用，因此，如果你在Swift代码中使用了你自己创建的的Objective-C类，那么请确保在Objective-C的`.m`文件导入Swift生成的头文件之前，先导入自定义类型的Objective-C头文件。
 
@@ -109,7 +109,7 @@ myOtherCell.subtitle = "Another custom cell"
 
 要在同一框架目标中的Objective-C代码中使用Swift文件，你无需在综合头文件中导入任何文件。你只需在任何需要使用Swift代码的Objective-C的`.m`文件中导入Xcode生成的头文件。
 
-因为框架目标的生成的头文件的是框架公开接口的一部分，因此只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C能访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
+因为框架目标的生成的头文件的是框架公开接口的一部分，因此只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C能访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.2版）”的“访问控制”章节。
 
 ##### 把同一个编译框架中的Swift代码导入Objective-C
 
@@ -225,15 +225,13 @@ Swift编译器会自动把Objective-C代码自动导入为常规的Swift代码�
 如果Swift编译器未能识别类的工厂方法，你可以使用`NS_SWIFT_NAME`宏，传入Swift构造方法的签名，以使之被正确导入。例如：
 
 ``` objc
-+ (instancetype)recordWithRPM:(NSUInteger)RPM
-	NS_SWIFT_NAME(init(RPM:));
++ (instancetype)recordWithRPM:(NSUInteger)RPM NS_SWIFT_NAME(init(RPM:));
 ```
 
 如果Swift编译器错误地把一个方法认作了类的工厂方法，你也可以使用`NS_SWIFT_NAME`宏，传入Swift的方法签名，以使之被正确导入。例如：
 
 ``` objc
-+ (id)recordWithQuality:(double)quality
-	NS_SWIFT_NAME(record(quality:));
++ (id)recordWithQuality:(double)quality NS_SWIFT_NAME(record(quality:));
 ```
 
 #### 枚举
@@ -243,7 +241,7 @@ Swift编译器会自动把Objective-C代码自动导入为常规的Swift代码�
 ``` objc
 typedef NS_ENUM(NSInteger, ABCRecordSide) {
 	ABCRecordSideA,
-	ABCRecordSideB NS_SWIFT_NAME("FlipSide"),
+	ABCRecordSideB NS_SWIFT_NAME(FlipSide),
 };
 ```
 
@@ -315,6 +313,6 @@ Xcode为Swift代码生成的头文件的名字、以及Xcode为你创建的Objec
 - 如果你在Swift代码中使用了你自己创建的的Objective-C类，那么请确保在Objective-C的`.m`文件导入Swift生成的头文件之前，先导入自定义类型的Objective-C头文件。
 - 使用`private`修饰符标记的声明不会出现在生成的头文件中。除非显式地使用`@IBAction`，`@IBOutlet`或`@objc`做了标记，否则私有的声明不会暴露给Objective-C。
 - 对于应用编译目标，如果包含了Objective-C的桥接头文件，使用`internal`修饰符标记的声明会出现在生成的头文件中。
-- 对于框架编译目标，只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C中访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.1版）”的“访问控制”章节。
+- 对于框架编译目标，只有用`public`修饰符标记的声明才会出现在框架目标的生成的头文件中。如果Swift的类是派生自Objective-C的类，那么你还可以在框架中的Objective-C中访问用`internal`修饰符标记的属性和方法。要了解更多关于访问控制修饰符的信息，请参考“Swift编程语言（Swift 2.2版）”的“访问控制”章节。
 
 [< 2. 互操作性](./2_互操性.markdown#开始) | [目录](./0_目录.markdown) | [4. 迁移到Swift >](./4_迁移到Swift.markdown)

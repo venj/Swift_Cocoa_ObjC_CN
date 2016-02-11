@@ -25,7 +25,7 @@
 - ✓ 当你使用Objective-C的API时，你需要了解Swift如何转译Objective-C的语言特性。要了解更多信息，请参阅[与Objective-C API交互](./2_互操作性.markdown#与objective-c-api交互)。
 - ✓ 当你编写使用Cocoa框架的Swift代码时，请记住某些类型是被桥接的，这意味着你可以在某些使用Objective-C类型的地方用相应的Swift类型代替。要了解更多信息，请参阅[使用Cocoa数据类型](./2_互操作性.markdown#使用cocoa数据类型)。
 - ✓ 在你把Cocoa设计模式应用到Swift代码中的时候，请参考[使用Cocoa设计模式](./2_互操作性.markdown#使用cocoa设计模式)，了解关于如何转译常见的设计模式的信息。
-- ✓ 要了解把Objective-C的属性转译到Swift中的注意事项，请阅读“Swift编程语言（Swift 2.1版）”的“属性”章节。
+- ✓ 要了解把Objective-C的属性转译到Swift中的注意事项，请阅读“Swift编程语言（Swift 2.2版）”的“属性”章节。
 - ✓ 使用`@objc(<#name#>)`注解可以在需要的时候，为属性和方法向Objective-C暴露特殊的名字。例如，你可以把一个名为`enabled`的属性，暴露给Objective-C时使用名为`isEnabled`的访问方法，你可以这样写：
 
 ``` swift
