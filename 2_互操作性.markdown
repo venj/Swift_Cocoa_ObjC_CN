@@ -405,9 +405,7 @@ Swift为派生自`NSObject`类的对象提供了符合`Hashable`协议所需的`
 - 在Swift中定义的类型别名
 - Swift风格的可变参数
 - 嵌套类型
-- 柯里化的函数(*)
-
-** *译者按：Curried functions的翻译参考了[维基百科](https://zh.wikipedia.org/wiki/柯里化) **
+- 柯里化函数（译者按：Curried functions的翻译参考了[维基百科](https://zh.wikipedia.org/wiki/柯里化)）
 
 把Swift的API翻译成Objective-C与把Objective-C的API翻译成Swift时很类似，只是过程相反：
 
